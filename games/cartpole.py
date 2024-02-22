@@ -136,7 +136,8 @@ class Game(AbstractGame):
     def __init__(self, seed=None):
         self.env = gym.make("CartPole-v1")
         if seed is not None:
-            self.env.seed(seed)
+            #self.env.seed(seed)
+            pass # CartPole-v1 has no seed
 
     def step(self, action):
         """
