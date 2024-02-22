@@ -13,3 +13,20 @@ https://blog.csdn.net/Sco_114/article/details/121135474
 
 git status -s
 https://www.runoob.com/git/git-add.html
+
+
+删除本地文件后，想从远程仓库中重新新Pull最新代码，但是执行了git pull origin develop 命令后始终无法拉取下来
+
+提示 Already up-to-date.
+
+原因：当前本地库处于另一个分支中，需将本分支发Head重置至develop
+
+git 强行pull并覆盖本地文件(依次执行)
+
+git fetch --all
+
+git reset --hard origin/master
+
+git pull
+
+https://www.cnblogs.com/ww25/p/15912580.html
