@@ -596,7 +596,7 @@ def load_model_menu(muzero, game_name):
     valid_inputs = [str(i) for i in range(len(options))]
     print(f'valid_inputs={valid_inputs}')
     while choice not in valid_inputs:
-        choice = input("Invalid input, enter a number listed above: ")
+        choice = input("599 Invalid input, enter a number listed above: ")
     choice = int(choice)
 
     if choice == (len(options) - 1):
@@ -647,7 +647,7 @@ if __name__ == "__main__":
         print(valid_inputs)
         print(choice in valid_inputs)
         while choice not in valid_inputs:
-            choice = input("Invalid input, enter a number listed above: ")
+            choice = input("650 Invalid input, enter a number listed above: ")
 
         # Initialize MuZero
         choice = int(choice)
@@ -673,7 +673,7 @@ if __name__ == "__main__":
             choice = input("Enter a number to choose an action: ")
             valid_inputs = [str(i) for i in range(len(options))]
             while choice not in valid_inputs:
-                choice = input("Invalid input, enter a number listed above: ")
+                choice = input("676 Invalid input, enter a number listed above: ")
             choice = int(choice)
             if choice == 0:
                 muzero.train()
