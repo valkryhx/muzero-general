@@ -591,7 +591,7 @@ def load_model_menu(muzero, game_name):
     for i in range(len(options)):
         print(f"{i}. {options[i]}")
 
-    choice =str(2) # input("Enter a number to choose a model to load: ")
+    choice =input("Enter a number to choose a model to load: ")
     print(f'choice={choice},type_choice={type(choice)}')
     valid_inputs = [str(i) for i in range(len(options))]
     print(f'valid_inputs={valid_inputs}')
@@ -641,7 +641,7 @@ if __name__ == "__main__":
         ]
         for i in range(len(games)):
             print(f"{i}. {games[i]}")
-        choice = 2 #input("Enter a number to choose the game: ")
+        choice = str(2) #input("Enter a number to choose the game: ")
         valid_inputs = [str(i) for i in range(len(games))]
         while choice not in valid_inputs:
             choice = input("Invalid input, enter a number listed above: ")
