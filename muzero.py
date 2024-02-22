@@ -639,7 +639,7 @@ if __name__ == "__main__":
         ]
         for i in range(len(games)):
             print(f"{i}. {games[i]}")
-        choice = input("Enter a number to choose the game: ")
+        choice = 2 #input("Enter a number to choose the game: ")
         valid_inputs = [str(i) for i in range(len(games))]
         while choice not in valid_inputs:
             choice = input("Invalid input, enter a number listed above: ")
