@@ -643,6 +643,9 @@ if __name__ == "__main__":
             print(f"{i}. {games[i]}")
         choice = str(2) #input("Enter a number to choose the game: ")
         valid_inputs = [str(i) for i in range(len(games))]
+        print(choice)
+        print(valid_inputs)
+        print(choice in valid_inputs)
         while choice not in valid_inputs:
             choice = input("Invalid input, enter a number listed above: ")
 
