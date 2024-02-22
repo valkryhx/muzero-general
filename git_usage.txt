@@ -1,0 +1,15 @@
+git add xxxfile
+git commit -m "info"
+git push -u origin master
+
+https://blog.csdn.net/yl_cc/article/details/72676538
+
+// 从暂存区中撤销一个指定文件
+git reset HEAD 文件名称
+// 从暂存区中撤销所有文件
+git reset HEAD .
+
+https://blog.csdn.net/Sco_114/article/details/121135474
+
+git status -s
+https://www.runoob.com/git/git-add.html
