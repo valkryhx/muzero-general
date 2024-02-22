@@ -592,7 +592,9 @@ def load_model_menu(muzero, game_name):
         print(f"{i}. {options[i]}")
 
     choice =str(2) # input("Enter a number to choose a model to load: ")
+    print(f'choice={choice},type_choice={type(choice)}')
     valid_inputs = [str(i) for i in range(len(options))]
+    print(f'valid_inputs={valid_inputs}')
     while choice not in valid_inputs:
         choice = input("Invalid input, enter a number listed above: ")
     choice = int(choice)
