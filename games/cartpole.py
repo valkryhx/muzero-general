@@ -7,7 +7,7 @@ import torch
 
 from .abstract_game import AbstractGame
 
-
+#https://github.com/openai/gym/issues/3138
 class MuZeroConfig:
     def __init__(self):
         # fmt: off
@@ -149,7 +149,7 @@ class Game(AbstractGame):
         Returns:
             The new observation, the reward and a boolean if the game has ended.
         """
-        observation, reward, done, _ = self.env.step(action)
+        observation, reward, done, _,_ = self.env.step(action)
         return numpy.array([[observation]]), reward, done
 
     def legal_actions(self):
@@ -172,7 +172,8 @@ class Game(AbstractGame):
         Returns:
             Initial observation of the game.
         """
-        return numpy.array([[self.env.reset()]])
+		obs,_ = self.env.reset()
+        return numpy.array([[obs]])
 
     def close(self):
         """
