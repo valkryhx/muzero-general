@@ -172,7 +172,7 @@ class Game(AbstractGame):
         Returns:
             Initial observation of the game.
         """
-		obs,_ = self.env.reset()
+        obs,_ = self.env.reset()
         return numpy.array([[obs]])
 
     def close(self):
