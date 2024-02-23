@@ -134,6 +134,7 @@ class Game(AbstractGame):
         """
         Apply action to the game.
 
+
         Args:
             action : action of the action_space to take.
 
@@ -226,4 +227,5 @@ class GridEnv:
     def get_observation(self):
         observation = numpy.zeros((self.size, self.size))
         observation[self.position[0]][self.position[1]] = 1
+        # flatten 把二维3x3 拉成 单独的1维为9的np array
         return observation.flatten()

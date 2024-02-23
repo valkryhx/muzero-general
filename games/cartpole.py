@@ -49,6 +49,7 @@ class MuZeroConfig:
 
 
         ### Network
+        # cartpole问题上 fullyconnect比resnet的效果好 最终大概坚持时间为180比100左右，这是没有仔细调节超参数的测试结果。
         self.network = "fullyconnected"  # "resnet" / "fullyconnected"
         self.support_size = 10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
         
@@ -139,7 +140,7 @@ class Game(AbstractGame):
             #self.env.seed(seed)
             pass # CartPole-v1 has no seed
 
-    def step(self, action):
+    def step(self, action): 
         """
         Apply action to the game.
 
@@ -149,6 +150,8 @@ class Game(AbstractGame):
         Returns:
             The new observation, the reward and a boolean if the game has ended.
         """
+        # gym0.26.2 的step输出多了一个参数
+        # https://github.com/openai/gym/issues/3138
         observation, reward, done, _,_ = self.env.step(action)
         return numpy.array([[observation]]), reward, done
 
@@ -172,6 +175,8 @@ class Game(AbstractGame):
         Returns:
             Initial observation of the game.
         """
+        # gym0.26.2 的reset输出多了一个参数
+        # https://github.com/openai/gym/issues/3138
         obs,_ = self.env.reset()
         return numpy.array([[obs]])
 

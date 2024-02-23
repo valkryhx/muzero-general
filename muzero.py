@@ -388,21 +388,24 @@ class MuZero:
         """
         opponent = opponent if opponent else self.config.opponent
         muzero_player = muzero_player if muzero_player else self.config.muzero_player
+        # SelfPlay 是@ray.remote注解的 所以有.options方法
+        # remote方法也是ray.remote带有的 ，将SelfPlay.init所需要的参数传入
         self_play_worker = self_play.SelfPlay.options(
             num_cpus=0,
             num_gpus=num_gpus,
         ).remote(self.checkpoint, self.Game, self.config, numpy.random.randint(10000))
+        # 下面的ray.get 才是正式开始play game  ，SelfPlay类中的play_game的参数需要5个
         results = []
         for i in range(num_tests):
             print(f"Testing {i+1}/{num_tests}")
             results.append(
                 ray.get(
                     self_play_worker.play_game.remote(
-                        0,
-                        0,
-                        render,
-                        opponent,
-                        muzero_player,
+                        temperature=0,
+                        temperature_threshold=0,
+                        render=render,
+                        opponent=opponent,
+                        muzero_player=muzero_player,
                     )
                 )
             )
@@ -641,11 +644,12 @@ if __name__ == "__main__":
         ]
         for i in range(len(games)):
             print(f"{i}. {games[i]}")
-        choice = str(2) #input("Enter a number to choose the game: ")
+        #choice = str(2) #input("Enter a number to choose the game: ")
+        choice = input("Enter a number to choose the game: ")
         valid_inputs = [str(i) for i in range(len(games))]
-        print(choice)
-        print(valid_inputs)
-        print(choice in valid_inputs)
+        print(f'choice={choice}')
+        print(f'valid_inputs={valid_inputs}')
+        print(f'Is choice in valid_inputs = {choice in valid_inputs}')
         while choice not in valid_inputs:
             choice = input("650 Invalid input, enter a number listed above: ")
 
@@ -653,7 +657,7 @@ if __name__ == "__main__":
         choice = int(choice)
         game_name = games[choice]
         muzero = MuZero(game_name)
-
+        print(f'game_{choice} env is  made up!')
         while True:
             # Configure running options
             options = [
