@@ -388,20 +388,20 @@ class MuZero:
         """
         opponent = opponent if opponent else self.config.opponent
         muzero_player = muzero_player if muzero_player else self.config.muzero_player
-        # SelfPlay ÊÇ@ray.remote×¢½âµÄ ËùÒÔÓĞ.options·½·¨
-        # remote·½·¨Ò²ÊÇray.remote´øÓĞµÄ £¬½«SelfPlay.initËùĞèÒªµÄ²ÎÊı´«Èë
+        # SelfPlay æ˜¯@ray.remoteæ³¨è§£çš„ æ‰€ä»¥æœ‰.optionsæ–¹æ³•
+        # remoteæ–¹æ³•ä¹Ÿæ˜¯ray.remoteå¸¦æœ‰çš„ ï¼Œå°†SelfPlay.initæ‰€éœ€è¦çš„å‚æ•°ä¼ å…¥
         self_play_worker = self_play.SelfPlay.options(
             num_cpus=0,
             num_gpus=num_gpus,
         ).remote(self.checkpoint, self.Game, self.config, numpy.random.randint(10000))
-        # ÏÂÃæµÄray.get ²ÅÊÇÕıÊ½¿ªÊ¼play game  £¬SelfPlayÀàÖĞµÄplay_gameµÄ²ÎÊıĞèÒª5¸ö
+        # ä¸‹é¢çš„ray.get æ‰æ˜¯æ­£å¼å¼€å§‹play game  ï¼ŒSelfPlayç±»ä¸­çš„play_gameçš„å‚æ•°éœ€è¦5ä¸ª
         results = []
         for i in range(num_tests):
             print(f"Testing {i+1}/{num_tests}")
             results.append(
                 ray.get(
                     self_play_worker.play_game.remote(
-                        temperature=0,
+                        temperature=0, # è¡¨ç¤ºæ¯æ¬¡é€‰æ‹©greedy action
                         temperature_threshold=0,
                         render=render,
                         opponent=opponent,
