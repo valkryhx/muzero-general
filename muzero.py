@@ -401,7 +401,7 @@ class MuZero:
             results.append(
                 ray.get(
                     self_play_worker.play_game.remote(
-                        temperature=0, # 表示每次选择greedy action
+                        temperature=0, # 表示每次选择greedy action .
                         temperature_threshold=0,
                         render=render,
                         opponent=opponent,
