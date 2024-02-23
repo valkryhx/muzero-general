@@ -412,6 +412,13 @@ class MuZero:
         self_play_worker.close_game.remote()
 
         if len(self.config.players) == 1:
+            print(f'from muzero.py: results结构为[GameHistory(),GameHistory(),....],self_play.py定义的GameHistory(),包含:reward_history,action_history')
+            for history in results:
+                print('===')
+                
+                print(history.action_history)
+                print(history.reward_history)
+                print(history.observation_history)
             result = numpy.mean([sum(history.reward_history) for history in results])
         else:
             result = numpy.mean(
@@ -674,10 +681,10 @@ if __name__ == "__main__":
             for i in range(len(options)):
                 print(f"{i}. {options[i]}")
 
-            choice = input("Enter a number to choose an action: ")
+            choice = input("Enter a number to choose an option: ")
             valid_inputs = [str(i) for i in range(len(options))]
             while choice not in valid_inputs:
-                choice = input("676 Invalid input, enter a number listed above: ")
+                choice = input("muzero line 676: Invalid input, enter a number listed above: ")
             choice = int(choice)
             if choice == 0:
                 muzero.train()

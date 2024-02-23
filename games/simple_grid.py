@@ -1,6 +1,6 @@
 import datetime
 import pathlib
-
+import time
 import numpy
 import torch
 
@@ -155,7 +155,9 @@ class Game(AbstractGame):
         Returns:
             An array of integers, subset of the action space.
         """
-        return list(range(2))
+        #return list(range(2))
+        # 直接使用list(range(2)) 即down和right太粗暴 没有考虑撞墙的情况
+        return self.env.legal_actions()
 
     def reset(self):
         """
@@ -171,7 +173,11 @@ class Game(AbstractGame):
         Display the game observation.
         """
         self.env.render()
-        input("Press enter to take a step ")
+        #https://blog.csdn.net/qq_19446965/article/details/126793548
+        # input接收用户输入 的目的是中断让render按照顺序输出各个observation 那么此时用time.sleep也能实现这个目的
+        time.sleep(0.2)
+        #input("Press enter to take a step .按下enter让agent执行一步.这个步骤的作用主要是让进程停顿 从而让并发的输出有一定的顺序.")
+        #print("Press enter to take a step .目前自动按下enter.本提示来自game目录的对应游戏的py文件中的def render方法.")
 
     def action_to_string(self, action_number):
         """
@@ -227,5 +233,5 @@ class GridEnv:
     def get_observation(self):
         observation = numpy.zeros((self.size, self.size))
         observation[self.position[0]][self.position[1]] = 1
-        # flatten �Ѷ�ά3x3 ���� ������1άΪ9��np array
+        # flatten 把二维3x3 拉成 单独的1维为9的np array
         return observation.flatten()
