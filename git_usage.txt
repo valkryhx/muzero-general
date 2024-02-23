@@ -1,4 +1,5 @@
 # muzero伪代码 https://arxiv.org/src/1911.08265v2/anc/pseudocode.py
+# editplus 修改 工具-首选项目 ： 编码方式修改为utf8 ，制表缩进修改为插入空格替代制表符
 
 git add xxxfile
 git commit -m "info"
