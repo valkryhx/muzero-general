@@ -712,8 +712,8 @@ if __name__ == "__main__":
                 # Parametrization documentation: https://facebookresearch.github.io/nevergrad/parametrization.html
                 muzero.terminate_workers()
                 del muzero
-                budget = 20
-                parallel_experiments = 2
+                budget = 5#20
+                parallel_experiments = 1#2
                 lr_init = nevergrad.p.Log(lower=0.0001, upper=0.1)
                 discount = nevergrad.p.Log(lower=0.95, upper=0.9999)
                 parametrization = nevergrad.p.Dict(lr_init=lr_init, discount=discount)
