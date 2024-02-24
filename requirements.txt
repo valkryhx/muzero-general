@@ -1,4 +1,6 @@
 #gym[classic_control] modified by hx 20240222
+joblib==1.3.2 # modified for win10/7
+# pip install pipenv==2022.11.30 #for win7 
 gym 
 nevergrad
 numpy
@@ -6,3 +8,4 @@ ray
 seaborn
 tensorboard
 torch
+
