@@ -13,6 +13,7 @@ class MuZeroConfig:
         # More information is available here: https://github.com/werner-duvaud/muzero-general/wiki/Hyperparameter-Optimization
 
         self.seed = 0  # Seed for numpy, torch and the game
+        # 下面 无论是否使用GPU 都不要改 None是默认使用全部GPU  如果没有GPU 自动使用CPU
         self.max_num_gpus = None  # Fix the maximum number of GPUs to use. It's usually faster to use a single GPU (set it to 1) if it has enough memory. None will use every GPUs available
 
 
@@ -31,6 +32,9 @@ class MuZeroConfig:
 
         ### Self-Play
         self.num_workers = 1  # Number of simultaneous threads/workers self-playing to feed the replay buffer
+        # 要使用GPU 必须环境中有GPU  这里再改成True
+        # https://github.com/ray-project/ray/issues/30012#issuecomment-1364633366
+        # pip install grpcio==1.51.3 就可以正常使用gpu了  还有说法是ray==2.0.0
         self.selfplay_on_gpu = True #False
         self.max_moves = 6  # Maximum number of moves if game is not finished before
         self.num_simulations = 10  # Number of future moves self-simulated
