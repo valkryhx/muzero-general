@@ -94,7 +94,7 @@ class MuZero:
             self.num_gpus = math.floor(self.num_gpus)
         print(f'total_gpus={total_gpus}')
         ray.init(num_gpus=total_gpus, ignore_reinit_error=True)
-
+        sleep(35)
         # Checkpoint and replay buffer used to initialize workers
         self.checkpoint = {
             "weights": None,
