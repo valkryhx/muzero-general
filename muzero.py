@@ -534,6 +534,8 @@ def hyperparameter_search(
                 print(f"Launching new experiment: {param.value}")
                 muzero = MuZero(game_name, param.value, parallel_experiments)
                 muzero.param = param
+                # print
+                print('INTO muzuro training....')
                 muzero.train(False)
                 running_experiments.append(muzero)
                 budget -= 1
