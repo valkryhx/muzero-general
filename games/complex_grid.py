@@ -61,22 +61,22 @@ class MuZeroConfig:
         
         # Residual Network
         self.downsample = "resnet"#False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
-        self.blocks = 8#1  # Number of blocks in the ResNet
-        self.channels = 64#2  # Number of channels in the ResNet
-        self.reduced_channels_reward = 64#2  # Number of channels in reward head
-        self.reduced_channels_value = 64#2  # Number of channels in value head
-        self.reduced_channels_policy = 64#2  # Number of channels in policy head
-        self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
+        self.blocks = 32#1  # Number of blocks in the ResNet
+        self.channels = 256#2  # Number of channels in the ResNet
+        self.reduced_channels_reward = 256#2  # Number of channels in reward head
+        self.reduced_channels_value = 256#2  # Number of channels in value head
+        self.reduced_channels_policy = 256#2  # Number of channels in policy head
+        self.resnet_fc_reward_layers = [256]  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = [256]  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = [256]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
-        self.encoding_size = 20#5
-        self.fc_representation_layers =[64] #[16]  # Define the hidden layers in the representation network
-        self.fc_dynamics_layers = [64] #[16]  # Define the hidden layers in the dynamics network
-        self.fc_reward_layers = [64] #[16]  # Define the hidden layers in the reward network
-        self.fc_value_layers = [64] #[16]  # Define the hidden layers in the value network
-        self.fc_policy_layers = [64] #[16]  # Define the hidden layers in the policy network
+        self.encoding_size = 256#5
+        self.fc_representation_layers =[256] #[16]  # Define the hidden layers in the representation network
+        self.fc_dynamics_layers = [256] #[16]  # Define the hidden layers in the dynamics network
+        self.fc_reward_layers = [256] #[16]  # Define the hidden layers in the reward network
+        self.fc_value_layers = [256] #[16]  # Define the hidden layers in the value network
+        self.fc_policy_layers = [256] #[16]  # Define the hidden layers in the policy network
 
 
 
@@ -279,8 +279,8 @@ class GridEnv:
         reward = self.grid[self.position[0],self.position[1]]
         #print(f'123reward={reward}')
         # grid 变化太大？
-        #self.grid[self.position, :] = self.MARK_NEGATIVE
-        #self.grid[:, self.position] = self.MARK_NEGATIVE
+        self.grid[self.position, :] = self.MARK_NEGATIVE
+        self.grid[:, self.position] = self.MARK_NEGATIVE
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         done =  len(self.legal_actions())==0
         return self.get_observation(), reward, done#bool(reward)
