@@ -19,6 +19,7 @@ class MuZeroConfig:
 
 
         ### Game
+        # 9 是因为 3x3 在 GridEnv的get_observation中被拉成1维度的9
         self.observation_shape = (1, 1, 9)  # Dimensions of the game observation, must be 3D (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
         self.action_space = list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
@@ -31,7 +32,7 @@ class MuZeroConfig:
 
 
         ### Self-Play
-        self.num_workers = 2  # Number of simultaneous threads/workers self-playing to feed the replay buffer
+        self.num_workers = 2#1  # Number of simultaneous threads/workers self-playing to feed the replay buffer
         # 要使用GPU 必须环境中有GPU  这里再改成True
         # https://github.com/ray-project/ray/issues/30012#issuecomment-1364633366
         # pip install grpcio==1.51.3 就可以正常使用gpu了  还有说法是ray==2.0.0
