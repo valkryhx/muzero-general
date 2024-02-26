@@ -714,13 +714,13 @@ if __name__ == "__main__":
                 # Parametrization documentation: https://facebookresearch.github.io/nevergrad/parametrization.html
                 muzero.terminate_workers()
                 del muzero
-                budget = 4#10#20
-                parallel_experiments = 1
+                budget = 4#10#20  # search次数 可以>1
+                parallel_experiments = 2 # 必须是1 跟CPU core有关
                 lr_init = nevergrad.p.Log(lower=0.0001, upper=0.1)
                 discount = nevergrad.p.Log(lower=0.95, upper=0.9999)
                 parametrization = nevergrad.p.Dict(lr_init=lr_init, discount=discount)
                 best_hyperparameters = hyperparameter_search(
-                    game_name, parametrization, budget, parallel_experiments, num_tests=5#20
+                    game_name, parametrization, budget, parallel_experiments, num_tests=5#20 # 每个search中test的次数 可以大于1
                 )
                 muzero = MuZero(game_name, best_hyperparameters)
             else:
