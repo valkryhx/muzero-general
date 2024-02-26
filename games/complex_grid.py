@@ -96,12 +96,12 @@ class MuZeroConfig:
         # Exponential learning rate schedule
         self.lr_init = 1e-3#0.0064  # Initial learning rate
         self.lr_decay_rate = 0.95#1  # Set it to 1 to use a constant learning rate
-        self.lr_decay_steps = 50#1000
+        self.lr_decay_steps = 1000#1000
 
 
 
         ### Replay Buffer
-        self.replay_buffer_size = 5000  # Number of self-play games to keep in the replay buffer
+        self.replay_buffer_size = 20000  # Number of self-play games to keep in the replay buffer
         self.num_unroll_steps = 5  # Number of game moves to keep for every batch element
         self.td_steps = 5  # Number of steps in the future to take into account for calculating the target value
         self.PER = True  # Prioritized Replay (See paper appendix Training), select in priority the elements in the replay buffer which are unexpected for the network
@@ -222,7 +222,7 @@ class GridEnv:
         self.size = size
         #self.position = [0, 0]
         self.position = None
-        self.MARK_NEGATIVE = -100.0
+        self.MARK_NEGATIVE = 0.0
         # 原始的action space为[0,100)
         
         # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
