@@ -26,7 +26,7 @@ class MuZeroConfig:
         self.observation_shape = (1,grid_size, grid_size)
         self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
-        self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
+        self.stacked_observations = 2#0  # Number of previous observations and previous actions to add to the current observation
 
         # Evaluate
         self.muzero_player = 0  # Turn Muzero begins to play (0: MuZero plays first, 1: MuZero plays second)
@@ -83,8 +83,8 @@ class MuZeroConfig:
         ### Training
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 50000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  32  # Number of parts of games to train on at each training step
+        self.training_steps = 500000#30000  # Total number of training steps (ie weights update according to a batch)
+        self.batch_size =  640  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
@@ -128,7 +128,7 @@ class MuZeroConfig:
             Positive float.
         """
         #return 0        
-        if trained_steps < 20000:
+        if trained_steps < 5000:
             return 1.0
         elif trained_steps < 40000:
             return 0.5
