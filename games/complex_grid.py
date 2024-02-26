@@ -278,9 +278,11 @@ class GridEnv:
         #reward = self.grid[*self.position] 
         reward = self.grid[self.position[0],self.position[1]]
         #print(f'123reward={reward}')
-        self.grid[self.position, :] = self.MARK_NEGATIVE
-        self.grid[:, self.position] = self.MARK_NEGATIVE
-        done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
+        # grid 变化太大？
+        #self.grid[self.position, :] = self.MARK_NEGATIVE
+        #self.grid[:, self.position] = self.MARK_NEGATIVE
+        #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
+        done =  len(self.legal_actions())==0
         return self.get_observation(), reward, done#bool(reward)
 
     def reset(self):
