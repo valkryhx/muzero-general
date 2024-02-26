@@ -267,6 +267,7 @@ class MuZero:
         try:
             while info["training_step"] < self.config.training_steps:
                 info = ray.get(self.shared_storage_worker.get_info.remote(keys))
+                #print(f'info["total_reward"]={info["total_reward"]}')
                 writer.add_scalar(
                     "1.Total_reward/1.Total_reward",
                     info["total_reward"],
@@ -683,7 +684,7 @@ if __name__ == "__main__":
             for i in range(len(options)):
                 print(f"{i}. {options[i]}")
 
-            #choice =str(6)#str(0)# input("Enter a number to choose an option: ")
+            #choice =str(0)#str(0)# input("Enter a number to choose an option: ")
             choice =input("Enter a number to choose an option: ")
             valid_inputs = [str(i) for i in range(len(options))]
             while choice not in valid_inputs:

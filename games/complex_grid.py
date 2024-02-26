@@ -3,7 +3,8 @@ import pathlib
 import time
 import numpy
 import torch
-
+import random
+from copy import deepcopy
 from .abstract_game import AbstractGame
 
 grid_size = 10
@@ -21,8 +22,9 @@ class MuZeroConfig:
         ### Game
         # 9 是因为 3x3 在 GridEnv的get_observation中被拉成1维度的9
         #self.observation_shape = (1, 1, 9)  # Dimensions of the game observation, must be 3D (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
-        self.observation_shape = (1, 1, grid_size*grid_size)
-        self.action_space = list(range(2))  # Fixed list of all possible actions. You should only edit the length
+        #self.observation_shape = (1, 1, grid_size*grid_size)
+        self.observation_shape = (1,grid_size, grid_size)
+        self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
         self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
 
@@ -33,14 +35,14 @@ class MuZeroConfig:
 
 
         ### Self-Play
-        self.num_workers = 2#1  # Number of simultaneous threads/workers self-playing to feed the replay buffer
+        self.num_workers = 1#2#1  # Number of simultaneous threads/workers self-playing to feed the replay buffer
         # 要使用GPU 必须环境中有GPU  这里再改成True
         # https://github.com/ray-project/ray/issues/30012#issuecomment-1364633366
         # pip install grpcio==1.51.3 就可以正常使用gpu了  还有说法是ray==2.0.0
         self.selfplay_on_gpu = False#True #False
-        self.max_moves = 2*grid_size#6  # Maximum number of moves if game is not finished before
+        self.max_moves = grid_size//2#6  # Maximum number of moves if game is not finished before
         self.num_simulations = 10  # Number of future moves self-simulated
-        self.discount = 0.978  # Chronological discount of the reward
+        self.discount = 1.0# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
         # Root prior exploration noise
@@ -54,35 +56,35 @@ class MuZeroConfig:
 
 
         ### Network
-        self.network = "fullyconnected"  # "resnet" / "fullyconnected"
+        self.network = "resnet"#"fullyconnected"  # "resnet" / "fullyconnected"
         self.support_size = 10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
         
         # Residual Network
-        self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
-        self.blocks = 1  # Number of blocks in the ResNet
-        self.channels = 2  # Number of channels in the ResNet
-        self.reduced_channels_reward = 2  # Number of channels in reward head
-        self.reduced_channels_value = 2  # Number of channels in value head
-        self.reduced_channels_policy = 2  # Number of channels in policy head
+        self.downsample = False#False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
+        self.blocks = 8#1  # Number of blocks in the ResNet
+        self.channels = 8#2  # Number of channels in the ResNet
+        self.reduced_channels_reward = 4#2  # Number of channels in reward head
+        self.reduced_channels_value = 4#2  # Number of channels in value head
+        self.reduced_channels_policy = 4#2  # Number of channels in policy head
         self.resnet_fc_reward_layers = []  # Define the hidden layers in the reward head of the dynamic network
         self.resnet_fc_value_layers = []  # Define the hidden layers in the value head of the prediction network
         self.resnet_fc_policy_layers = []  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
-        self.encoding_size = 5
-        self.fc_representation_layers = [16]  # Define the hidden layers in the representation network
-        self.fc_dynamics_layers = [16]  # Define the hidden layers in the dynamics network
-        self.fc_reward_layers = [16]  # Define the hidden layers in the reward network
-        self.fc_value_layers = [16]  # Define the hidden layers in the value network
-        self.fc_policy_layers = [16]  # Define the hidden layers in the policy network
+        self.encoding_size = 20#5
+        self.fc_representation_layers =[64] #[16]  # Define the hidden layers in the representation network
+        self.fc_dynamics_layers = [64] #[16]  # Define the hidden layers in the dynamics network
+        self.fc_reward_layers = [64] #[16]  # Define the hidden layers in the reward network
+        self.fc_value_layers = [64] #[16]  # Define the hidden layers in the value network
+        self.fc_policy_layers = [64] #[16]  # Define the hidden layers in the policy network
 
 
 
         ### Training
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 500#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size = 32  # Number of parts of games to train on at each training step
+        self.training_steps = 50000#30000  # Total number of training steps (ie weights update according to a batch)
+        self.batch_size =  32  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
@@ -92,9 +94,9 @@ class MuZeroConfig:
         self.momentum = 0.9  # Used only if optimizer is SGD
 
         # Exponential learning rate schedule
-        self.lr_init = 0.0064  # Initial learning rate
-        self.lr_decay_rate = 1  # Set it to 1 to use a constant learning rate
-        self.lr_decay_steps = 1000
+        self.lr_init = 1e-4#0.0064  # Initial learning rate
+        self.lr_decay_rate = 0.95#1  # Set it to 1 to use a constant learning rate
+        self.lr_decay_steps = 100#1000
 
 
 
@@ -125,7 +127,13 @@ class MuZeroConfig:
         Returns:
             Positive float.
         """
-        return 1
+        #return 1        
+        if trained_steps < 20000:
+            return 1.0
+        elif trained_steps < 40000:
+            return 0.5
+        else:
+            return 0.25
 
 
 class Game(AbstractGame):
@@ -149,7 +157,10 @@ class Game(AbstractGame):
             The new observation, the reward and a boolean if the game has ended.
         """
         observation, reward, done = self.env.step(action)
-        return [[observation]], reward * 10, done
+        #return [[observation]], reward * 10, done
+        #print([[observation]])
+        #return [[observation]], reward , done
+        return [observation], reward , done
 
     def legal_actions(self):
         """
@@ -173,7 +184,9 @@ class Game(AbstractGame):
         Returns:
             Initial observation of the game.
         """
-        return [[self.env.reset()]]
+        #return [[self.env.reset()]]
+        return [self.env.reset()]
+
 
     def render(self):
         """
@@ -196,49 +209,110 @@ class Game(AbstractGame):
         Returns:
             String representing the action.
         """
-        actions = {
-            0: "Down",
-            1: "Right",
-        }
-        return f"{action_number}. {actions[action_number]}"
+        # actions = {
+        #     0: "Down",
+        #     1: "Right",
+        # }
+        actions ={k:str([k//grid_size , k %grid_size]) for k in range(0,grid_size*grid_size)}
+        return f"{action_number}. action= {actions[action_number]}"
 
 
 class GridEnv:
     def __init__(self, size=3):
         self.size = size
-        self.position = [0, 0]
-
+        #self.position = [0, 0]
+        self.position = None
+        self.MARK_NEGATIVE = -100.0
+        # 原始的action space为[0,100)
+        
+        # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
+        self._used_actions=set([])
+        # invalid actions 比如0 11,22,,,99
+        self._invalid_actions = set([i for i in range(grid_size*grid_size) if i//grid_size == i%grid_size])
+        self._actions = set(range(grid_size * grid_size)) - self._invalid_actions
+    # def legal_actions(self):
+    #    legal_actions = list(range(2))
+    #    if self.position[0] == (self.size - 1):
+    #        legal_actions.remove(0)
+    #    if self.position[1] == (self.size - 1):
+    #        legal_actions.remove(1)
+    #    return legal_actions
+    
     def legal_actions(self):
-        legal_actions = list(range(2))
-        if self.position[0] == (self.size - 1):
-            legal_actions.remove(0)
-        if self.position[1] == (self.size - 1):
-            legal_actions.remove(1)
-        return legal_actions
+        legal_actions = self._actions
+        if self.position and len(self.position)>1:
+            # for example self.position=[2,9]
+            #chosen_action = self.position[0]*grid_size + self.position[1]
+            marked_row_act_0 = set(range(self.position[0]*grid_size,(self.position[0]+1)*grid_size))
+            marked_row_act_1 = set(range(self.position[1] * grid_size, (self.position[1] + 1) * grid_size))
+            marked_col_act_0 = set([idx*grid_size + self.position[0] for idx in range(grid_size)])
+            marked_col_act_1 = set([idx * grid_size + self.position[1] for idx in range(grid_size)])
+            self._used_actions = self._used_actions | marked_row_act_0 | marked_row_act_1 | marked_col_act_0 | marked_col_act_1
+            legal_actions = list(legal_actions -self._invalid_actions -  self._used_actions)
+        #print(f'legal_actions={legal_actions}')
+        return legal_actions #list(self._actions)
+        
+        
+    # def step(self, action):
+    #     if action not in self.legal_actions():
+    #         pass
+    #     elif action == 0:
+    #         self.position[0] += 1
+    #     elif action == 1:
+    #         self.position[1] += 1
+    #
+    #     reward = 1 if self.position == [self.size - 1] * 2 else 0
+    #     return self.get_observation(), reward, bool(reward)
 
     def step(self, action):
-        if action not in self.legal_actions():
+        #print(f'step legal actions={self.legal_actions()}')
+        if action not in self.legal_actions() or len(self.legal_actions())==0 :
             pass
-        elif action == 0:
-            self.position[0] += 1
-        elif action == 1:
-            self.position[1] += 1
-
-        reward = 1 if self.position == [self.size - 1] * 2 else 0
-        return self.get_observation(), reward, bool(reward)
+        if not self.position:
+            self.position =[-1,-1] # position[-1,-1]表示不在grid上的位置只是为了占位
+        self.position[0] = action // grid_size
+        self.position[1] = action %  grid_size
+        #reward = 1 if self.position == [self.size - 1] * 2 else 0
+        #不能写成reward = self.grid[self.position] 因为self.position=[1,1] 会导致grid[1,1]取得是两行
+        # 或者写成reward = self.grid[self.position[0],self.position[1]] 
+        reward = self.grid[*self.position] 
+        #print(f'123reward={reward}')
+        self.grid[self.position, :] = self.MARK_NEGATIVE
+        self.grid[:, self.position] = self.MARK_NEGATIVE
+        done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
+        return self.get_observation(), reward, done#bool(reward)
 
     def reset(self):
-        self.position = [0, 0]
+        # position reset
+        self.position = None # [0, 0]
+        
+        # grid reset
+        a_100 = list(range(1, 100 + 1))
+        random.shuffle(a_100)
+        self.grid = numpy.array(a_100).reshape(10, 10) / len(a_100)  # np.random.random((10, 10))
+        numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
+        
+
+        # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
+        self._used_actions=set([])
+        # invalid actions 比如0 11,22,,,99
+        self._invalid_actions = set([i for i in range(grid_size*grid_size) if i//grid_size == i%grid_size])
+        # action space reset
+        self._actions = set(range(grid_size * grid_size)) -self._invalid_actions
         return self.get_observation()
 
     def render(self):
-        im = numpy.full((self.size, self.size), "-")
-        im[self.size - 1, self.size - 1] = "1"
-        im[self.position[0], self.position[1]] = "x"
+        #im = numpy.full((self.size, self.size), "-")
+        #im[self.size - 1, self.size - 1] = "1"
+        im = deepcopy(self.grid)
+        if self.position and len(self.position)>0:
+            im[self.position[0], self.position[1]] = 200
         print(im)
 
     def get_observation(self):
-        observation = numpy.zeros((self.size, self.size))
-        observation[self.position[0]][self.position[1]] = 1
+        #observation = numpy.zeros((self.size, self.size))
+        #observation[self.position[0]][self.position[1]] = 1
+        observation = self.grid
         # flatten 把二维3x3 拉成 单独的1维为9的np array
-        return observation.flatten()
+        #return observation.flatten()
+        return observation
