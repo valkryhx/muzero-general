@@ -275,7 +275,8 @@ class GridEnv:
         #reward = 1 if self.position == [self.size - 1] * 2 else 0
         #不能写成reward = self.grid[self.position] 因为self.position=[1,1] 会导致grid[1,1]取得是两行
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
-        reward = self.grid[*self.position] 
+        #reward = self.grid[*self.position] 
+        reward = self.grid[self.position[0],self.position[1]]
         #print(f'123reward={reward}')
         self.grid[self.position, :] = self.MARK_NEGATIVE
         self.grid[:, self.position] = self.MARK_NEGATIVE
