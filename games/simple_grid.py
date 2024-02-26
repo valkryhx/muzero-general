@@ -32,7 +32,7 @@ class MuZeroConfig:
 
 
         ### Self-Play
-        self.num_workers = 4#1  # Number of simultaneous threads/workers self-playing to feed the replay buffer
+        self.num_workers = 2#1  # Number of simultaneous threads/workers self-playing to feed the replay buffer
         # 要使用GPU 必须环境中有GPU  这里再改成True
         # https://github.com/ray-project/ray/issues/30012#issuecomment-1364633366
         # pip install grpcio==1.51.3 就可以正常使用gpu了  还有说法是ray==2.0.0
