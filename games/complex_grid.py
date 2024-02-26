@@ -60,15 +60,15 @@ class MuZeroConfig:
         self.support_size = 10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
         
         # Residual Network
-        self.downsample = False#False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
+        self.downsample = "resnet"#False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
         self.blocks = 8#1  # Number of blocks in the ResNet
-        self.channels = 8#2  # Number of channels in the ResNet
-        self.reduced_channels_reward = 4#2  # Number of channels in reward head
-        self.reduced_channels_value = 4#2  # Number of channels in value head
-        self.reduced_channels_policy = 4#2  # Number of channels in policy head
-        self.resnet_fc_reward_layers = []  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = []  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = []  # Define the hidden layers in the policy head of the prediction network
+        self.channels = 64#2  # Number of channels in the ResNet
+        self.reduced_channels_reward = 64#2  # Number of channels in reward head
+        self.reduced_channels_value = 64#2  # Number of channels in value head
+        self.reduced_channels_policy = 64#2  # Number of channels in policy head
+        self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
         self.encoding_size = 20#5
