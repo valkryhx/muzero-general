@@ -83,10 +83,10 @@ class MuZeroConfig:
         ### Training
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 500000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  640  # Number of parts of games to train on at each training step
+        self.training_steps = 50000#30000  # Total number of training steps (ie weights update according to a batch)
+        self.batch_size =  32  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 10  # Number of training steps before using the model for self-playing
-        self.value_loss_weight = 1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
+        self.value_loss_weight = 0.25#1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
         self.optimizer = "Adam"  # "Adam" or "SGD". Paper uses SGD
@@ -95,8 +95,8 @@ class MuZeroConfig:
 
         # Exponential learning rate schedule
         self.lr_init = 1e-3#0.0064  # Initial learning rate
-        self.lr_decay_rate = 0.95#1  # Set it to 1 to use a constant learning rate
-        self.lr_decay_steps = 1000#1000
+        self.lr_decay_rate = 0.99#1  # Set it to 1 to use a constant learning rate
+        self.lr_decay_steps = 200#1000
 
 
 
