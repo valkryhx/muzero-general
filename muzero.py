@@ -715,12 +715,12 @@ if __name__ == "__main__":
                 muzero.terminate_workers()
                 del muzero
                 budget = 2#10#20
-                parallel_experiments = 2
+                parallel_experiments = 1
                 lr_init = nevergrad.p.Log(lower=0.0001, upper=0.1)
                 discount = nevergrad.p.Log(lower=0.95, upper=0.9999)
                 parametrization = nevergrad.p.Dict(lr_init=lr_init, discount=discount)
                 best_hyperparameters = hyperparameter_search(
-                    game_name, parametrization, budget, parallel_experiments, 20
+                    game_name, parametrization, budget, parallel_experiments, 2#20
                 )
                 muzero = MuZero(game_name, best_hyperparameters)
             else:
