@@ -61,14 +61,14 @@ class MuZeroConfig:
         
         # Residual Network
         self.downsample = "resnet"#False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
-        self.blocks = 32#1  # Number of blocks in the ResNet
-        self.channels = 256#2  # Number of channels in the ResNet
-        self.reduced_channels_reward = 256#2  # Number of channels in reward head
-        self.reduced_channels_value = 256#2  # Number of channels in value head
-        self.reduced_channels_policy = 256#2  # Number of channels in policy head
-        self.resnet_fc_reward_layers = [256]  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = [256]  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = [256]  # Define the hidden layers in the policy head of the prediction network
+        self.blocks = 6#1  # Number of blocks in the ResNet
+        self.channels = 128#2  # Number of channels in the ResNet
+        self.reduced_channels_reward = 4#2  # Number of channels in reward head
+        self.reduced_channels_value = 4#2  # Number of channels in value head
+        self.reduced_channels_policy = 4#2  # Number of channels in policy head
+        self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
         self.encoding_size = 256#5
@@ -94,9 +94,9 @@ class MuZeroConfig:
         self.momentum = 0.9  # Used only if optimizer is SGD
 
         # Exponential learning rate schedule
-        self.lr_init = 1e-4#0.0064  # Initial learning rate
+        self.lr_init = 1e-3#0.0064  # Initial learning rate
         self.lr_decay_rate = 0.95#1  # Set it to 1 to use a constant learning rate
-        self.lr_decay_steps = 100#1000
+        self.lr_decay_steps = 50#1000
 
 
 
