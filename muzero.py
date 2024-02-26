@@ -715,7 +715,7 @@ if __name__ == "__main__":
                 muzero.terminate_workers()
                 del muzero
                 budget = 4#10#20  # search次数 可以>1
-                parallel_experiments = 2 # 必须是1 跟CPU core有关
+                parallel_experiments = 1# 2 # 必须是1 跟CPU core有关 kaggle只有一个cpu
                 lr_init = nevergrad.p.Log(lower=0.0001, upper=0.1)
                 discount = nevergrad.p.Log(lower=0.95, upper=0.9999)
                 parametrization = nevergrad.p.Dict(lr_init=lr_init, discount=discount)
