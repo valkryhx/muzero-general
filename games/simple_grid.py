@@ -36,7 +36,7 @@ class MuZeroConfig:
         # 要使用GPU 必须环境中有GPU  这里再改成True
         # https://github.com/ray-project/ray/issues/30012#issuecomment-1364633366
         # pip install grpcio==1.51.3 就可以正常使用gpu了  还有说法是ray==2.0.0
-        self.selfplay_on_gpu = True #False
+        self.selfplay_on_gpu = False#True #False
         self.max_moves = 6  # Maximum number of moves if game is not finished before
         self.num_simulations = 10  # Number of future moves self-simulated
         self.discount = 0.978  # Chronological discount of the reward
