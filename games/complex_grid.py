@@ -224,6 +224,8 @@ class GridEnv:
         #self.position = [0, 0]
         self.position = None
         self.MARK_NEGATIVE = 0.0
+        self.h_score = self.heuristic_score()
+        self.agent_get_reward =0
         # 原始的action space为[0,100)
         
         # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
@@ -238,6 +240,25 @@ class GridEnv:
     #    if self.position[1] == (self.size - 1):
     #        legal_actions.remove(1)
     #    return legal_actions
+    
+    def heuristic_score(self):
+        heuristic_score = 0.0
+        grid_copy = self.grid.copy()
+        while numpy.max(grid_copy)> MARK_NEGATIVE/2.0 :
+            #print(grid_copy)
+            #print(np.max(grid_copy))
+            heuristic_score += np.max(grid_copy)
+            m = numpy.argmax(grid_copy)                # 把矩阵拉成一维，m是在一维数组中最大值的下标
+            row, col = divmod(m, grid_copy.shape[1])    # r和c分别为商和余数，即最大值在矩阵中的行和列 # m是被除数， a.shape[1]是除数
+            #print(row, col)
+            grid_copy[[row,col],:]=MARK_NEGATIVE 
+            grid_copy[:,[row,col]]=MARK_NEGATIVE
+            #print(grid)
+        #print(f'heuristic_score ={heuristic_score}')
+        #print(f'h_s={heuristic_scores}')
+        #assert False
+        return heuristic_score
+    
     
     def legal_actions(self):
         legal_actions = self._actions
@@ -278,12 +299,19 @@ class GridEnv:
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
         #reward = self.grid[*self.position] 
         reward = self.grid[self.position[0],self.position[1]]
+        self.agent_get_reward += reward
         #print(f'123reward={reward}')
         # grid 变化太大？
         self.grid[self.position, :] = self.MARK_NEGATIVE
         self.grid[:, self.position] = self.MARK_NEGATIVE
         done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
-        done =  len(self.legal_actions())==0
+        #done =  len(self.legal_actions())==0
+        if done :
+            if self.agent_get_reward>=self.h_score :
+                reward += 10
+            else:
+                reward += -10
+        
         return self.get_observation(), reward, done#bool(reward)
 
     def reset(self):
@@ -295,8 +323,9 @@ class GridEnv:
         random.shuffle(a_100)
         self.grid = numpy.array(a_100).reshape(10, 10) / len(a_100)  # np.random.random((10, 10))
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
-        
-
+        # h score reset 
+        self.h_score = self.heuristic_score()
+        self.agent_get_reward =0
         # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
         self._used_actions=set([])
         # invalid actions 比如0 11,22,,,99
