@@ -58,7 +58,7 @@ class MuZeroConfig:
 
         ### Network
         self.network = "resnet"#"fullyconnected"  # "resnet" / "fullyconnected"
-        self.support_size = 1#10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
+        self.support_size = 10#10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
         
         # Residual Network
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
@@ -161,7 +161,7 @@ class Game(AbstractGame):
         #return [[observation]], reward * 10, done
         #print([[observation]])
         #return [[observation]], reward , done
-        return [observation], reward , done
+        return [observation], reward*10 , done
 
     def legal_actions(self):
         """
