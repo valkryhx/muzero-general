@@ -43,7 +43,7 @@ class MuZeroConfig:
         self.selfplay_on_gpu = False#True #False
         self.max_moves = grid_size//2#6  # Maximum number of moves if game is not finished before
         self.num_simulations = 50  # Number of future moves self-simulated
-        self.discount = 1.0# 0.978  # Chronological discount of the reward
+        self.discount = 0.98# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
         # Root prior exploration noise
@@ -223,7 +223,7 @@ class GridEnv:
         self.size = size
         #self.position = [0, 0]
         self.position = None
-        self.MARK_NEGATIVE = -100.0
+        self.MARK_NEGATIVE = 0.0
         # 原始的action space为[0,100)
         
         # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
@@ -280,9 +280,9 @@ class GridEnv:
         reward = self.grid[self.position[0],self.position[1]]
         #print(f'123reward={reward}')
         # grid 变化太大？
-        #self.grid[self.position, :] = self.MARK_NEGATIVE
-        #self.grid[:, self.position] = self.MARK_NEGATIVE
-        #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
+        self.grid[self.position, :] = self.MARK_NEGATIVE
+        self.grid[:, self.position] = self.MARK_NEGATIVE
+        done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         done =  len(self.legal_actions())==0
         return self.get_observation(), reward, done#bool(reward)
 
