@@ -334,7 +334,7 @@ class GridEnv:
         self.position = None # [0, 0]
         
         # grid reset
-        a_100 = list(range(1, grid_size + 1))
+        a_100 = list(range(1, grid_size*grid_size + 1))
         random.shuffle(a_100)
         self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
