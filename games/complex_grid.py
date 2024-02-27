@@ -95,9 +95,9 @@ class MuZeroConfig:
         self.momentum = 0.9  # Used only if optimizer is SGD
 
         # Exponential learning rate schedule
-        self.lr_init = 1e-4#0.0064  # Initial learning rate
-        self.lr_decay_rate = 0.9#1  # Set it to 1 to use a constant learning rate
-        self.lr_decay_steps = 5000#1000
+        self.lr_init = 1e-3#0.0064  # Initial learning rate
+        self.lr_decay_rate = 0.95#1  # Set it to 1 to use a constant learning rate
+        self.lr_decay_steps = 1000#1000
 
 
 
