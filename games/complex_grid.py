@@ -233,9 +233,9 @@ class GridEnv:
         self.position = None # [0, 0]
         
         # grid reset
-        a_100 = list(range(1, 100 + 1))
+        a_100 = list(range(1, grid_size*grid_size + 1))
         random.shuffle(a_100)
-        self.grid = numpy.array(a_100).reshape(10, 10) / len(a_100)  # np.random.random((10, 10))
+        self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
         # h score reset 
         self.h_score = self.heuristic_score()
@@ -313,19 +313,19 @@ class GridEnv:
         #不能写成reward = self.grid[self.position] 因为self.position=[1,1] 会导致grid[1,1]取得是两行
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
         #reward = self.grid[*self.position] 
-        reward = self.grid[self.position[0],self.position[1]]
-        self.agent_get_reward += reward
+        reward = self.grid[self.position[0],self.position[1]] - self.h_score / (grid_size/2)
+        #self.agent_get_reward += reward
         #print(f'123reward={reward}')
         # grid 变化太大？
         self.grid[self.position, :] = self.MARK_NEGATIVE
         self.grid[:, self.position] = self.MARK_NEGATIVE
         done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         #done =  len(self.legal_actions())==0
-        if done :
-            if self.agent_get_reward>=self.h_score :
-                reward += -self.h_score#5
-            else:
-                reward += -self.h_score#5
+        #if done :
+        #    if self.agent_get_reward>=self.h_score :
+        #       reward += -self.h_score#5
+        #    else:
+        #        reward += -self.h_score#5
         
         return self.get_observation(), reward, done#bool(reward)
 
@@ -334,9 +334,9 @@ class GridEnv:
         self.position = None # [0, 0]
         
         # grid reset
-        a_100 = list(range(1, 100 + 1))
+        a_100 = list(range(1, grid_size + 1))
         random.shuffle(a_100)
-        self.grid = numpy.array(a_100).reshape(10, 10) / len(a_100)  # np.random.random((10, 10))
+        self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
         # h score reset 
         self.h_score = self.heuristic_score()
