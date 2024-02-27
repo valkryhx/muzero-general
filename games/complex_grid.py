@@ -221,18 +221,33 @@ class Game(AbstractGame):
 class GridEnv:
     def __init__(self, size=3):
         self.size = size
-        #self.position = [0, 0]
-        self.position = None
+        
         self.MARK_NEGATIVE = 0.0
-        self.h_score = self.heuristic_score()
+        
         self.agent_get_reward =0
         # 原始的action space为[0,100)
         
         # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
+        
+        # position reset
+        self.position = None # [0, 0]
+        
+        # grid reset
+        a_100 = list(range(1, 100 + 1))
+        random.shuffle(a_100)
+        self.grid = numpy.array(a_100).reshape(10, 10) / len(a_100)  # np.random.random((10, 10))
+        numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
+        # h score reset 
+        self.h_score = self.heuristic_score()
+        self.agent_get_reward =0
+        # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
         self._used_actions=set([])
         # invalid actions 比如0 11,22,,,99
         self._invalid_actions = set([i for i in range(grid_size*grid_size) if i//grid_size == i%grid_size])
-        self._actions = set(range(grid_size * grid_size)) - self._invalid_actions
+        # action space reset
+        self._actions = set(range(grid_size * grid_size)) -self._invalid_actions
+        
+        
     # def legal_actions(self):
     #    legal_actions = list(range(2))
     #    if self.position[0] == (self.size - 1):
