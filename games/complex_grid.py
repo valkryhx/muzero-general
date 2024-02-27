@@ -42,8 +42,8 @@ class MuZeroConfig:
         
         self.selfplay_on_gpu = False#True #False
         self.max_moves = grid_size//2#6  # Maximum number of moves if game is not finished before
-        self.num_simulations = 50  # Number of future moves self-simulated
-        self.discount = 0.98# 0.978  # Chronological discount of the reward
+        self.num_simulations = 400  # Number of future moves self-simulated
+        self.discount = 0.99# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
         # Root prior exploration noise
@@ -130,11 +130,11 @@ class MuZeroConfig:
         """
         #return 0        
         if trained_steps < 20000:
-            return 0.5
+            return 1
         elif trained_steps < 40000:
-            return 0.3
+            return 0.5
         else:
-            return 0.1
+            return 0.25
 
 
 class Game(AbstractGame):
