@@ -259,15 +259,15 @@ class GridEnv:
     def heuristic_score(self):
         heuristic_score = 0.0
         grid_copy = self.grid.copy()
-        while numpy.max(grid_copy)> MARK_NEGATIVE/2.0 :
+        while numpy.max(grid_copy)> self.MARK_NEGATIVE/2.0 :
             #print(grid_copy)
             #print(np.max(grid_copy))
             heuristic_score += np.max(grid_copy)
             m = numpy.argmax(grid_copy)                # 把矩阵拉成一维，m是在一维数组中最大值的下标
             row, col = divmod(m, grid_copy.shape[1])    # r和c分别为商和余数，即最大值在矩阵中的行和列 # m是被除数， a.shape[1]是除数
             #print(row, col)
-            grid_copy[[row,col],:]=MARK_NEGATIVE 
-            grid_copy[:,[row,col]]=MARK_NEGATIVE
+            grid_copy[[row,col],:]=self.MARK_NEGATIVE 
+            grid_copy[:,[row,col]]=self.MARK_NEGATIVE
             #print(grid)
         #print(f'heuristic_score ={heuristic_score}')
         #print(f'h_s={heuristic_scores}')
