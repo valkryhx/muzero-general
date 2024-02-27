@@ -23,10 +23,12 @@ class MuZeroConfig:
         # 9 是因为 3x3 在 GridEnv的get_observation中被拉成1维度的9
         #self.observation_shape = (1, 1, 9)  # Dimensions of the game observation, must be 3D (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
         #self.observation_shape = (1, 1, grid_size*grid_size)
-        self.observation_shape = (1,grid_size, grid_size)
+        #self.observation_shape = (1,grid_size, grid_size)
+        # grid和marked_position 两个np.array 所以是2 。这次不在grid上修改保留原始信息
+        self.observation_shape = (2,grid_size, grid_size)
         self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
-        self.stacked_observations = 1  # Number of previous observations and previous actions to add to the current observation
+        self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
 
         # Evaluate
         self.muzero_player = 0  # Turn Muzero begins to play (0: MuZero plays first, 1: MuZero plays second)
@@ -85,9 +87,9 @@ class MuZeroConfig:
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 200000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  16  # Number of parts of games to train on at each training step
-        self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
-        self.value_loss_weight = 1#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
+        self.batch_size =  32  # Number of parts of games to train on at each training step
+        self.checkpoint_interval = 10#10  # Number of training steps before using the model for self-playing
+        self.value_loss_weight = 0.25#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
         self.optimizer = "Adam"  # "Adam" or "SGD". Paper uses SGD
@@ -129,12 +131,12 @@ class MuZeroConfig:
             Positive float.
         """
         #return 0        
-        if trained_steps < 20000:
-            return 0.1#1
-        elif trained_steps < 40000:
-            return 0.1#0.5
+        if trained_steps < 5000:
+            return 1
+        elif trained_steps < 30000:
+            return 0.5
         else:
-            return 0.1#0.25
+            return 0.25
 
 
 class Game(AbstractGame):
@@ -161,7 +163,8 @@ class Game(AbstractGame):
         #return [[observation]], reward * 10, done
         #print([[observation]])
         #return [[observation]], reward , done
-        return [observation], reward , done
+        #return [observation], reward , done
+        return observation, reward , done
 
     def legal_actions(self):
         """
@@ -186,7 +189,8 @@ class Game(AbstractGame):
             Initial observation of the game.
         """
         #return [[self.env.reset()]]
-        return [self.env.reset()]
+        #return [self.env.reset()]
+        return self.env.reset()
 
 
     def render(self):
@@ -222,7 +226,7 @@ class GridEnv:
     def __init__(self, size=3):
         self.size = size
         
-        self.MARK_NEGATIVE = 0.0
+        self.MARK_NEGATIVE = -10.0
         
         self.agent_get_reward =0
         # 原始的action space为[0,100)
@@ -237,6 +241,8 @@ class GridEnv:
         random.shuffle(a_100)
         self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
+        # marked_position rest
+        self.mark = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
         self.agent_get_reward =0
@@ -313,16 +319,19 @@ class GridEnv:
         #不能写成reward = self.grid[self.position] 因为self.position=[1,1] 会导致grid[1,1]取得是两行
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
         #reward = self.grid[*self.position] 
-        reward = self.grid[self.position[0],self.position[1]] - self.h_score / (grid_size/2)
+        reward = self.grid[self.position[0],self.position[1]]  - self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
         self.agent_get_reward += reward
         #print(f'123reward={reward}')
-        # grid 变化太大？
-        self.grid[self.position, :] = self.MARK_NEGATIVE
-        self.grid[:, self.position] = self.MARK_NEGATIVE
-        done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
+        # grid 变化太剧烈? 所以换成mark来记录已经不能下的位置
+        #self.grid[self.position, :] = self.MARK_NEGATIVE
+        #self.grid[:, self.position] = self.MARK_NEGATIVE
+        self.mark[self.position, :] = self.MARK_NEGATIVE
+        self.mark[:, self.position] = self.MARK_NEGATIVE
+        #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
+        done = (numpy.max(self.mark) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         #done =  len(self.legal_actions())==0
         if done :
-            if self.agent_get_reward>= 0 :
+            if self.agent_get_reward>= self.h_score :
                reward += 5
         #    else:
         #        reward += -self.h_score#5
@@ -338,6 +347,10 @@ class GridEnv:
         random.shuffle(a_100)
         self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
+
+        # marked_position reset
+        self.mark = numpy.zeros([grid_size,grid_size])
+        
         # h score reset 
         self.h_score = self.heuristic_score()
         self.agent_get_reward =0
@@ -352,7 +365,7 @@ class GridEnv:
     def render(self):
         #im = numpy.full((self.size, self.size), "-")
         #im[self.size - 1, self.size - 1] = "1"
-        im = deepcopy(self.grid)
+        im = deepcopy(self.grid) - deepcopy(self.mark)
         if self.position and len(self.position)>0:
             im[self.position[0], self.position[1]] = 200
         print(im)
@@ -360,7 +373,7 @@ class GridEnv:
     def get_observation(self):
         #observation = numpy.zeros((self.size, self.size))
         #observation[self.position[0]][self.position[1]] = 1
-        observation = self.grid
+        observation = [self.grid ,self.mark]
         # flatten 把二维3x3 拉成 单独的1维为9的np array
         #return observation.flatten()
-        return observation
+        return numpy.array(observation)
