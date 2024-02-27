@@ -4,8 +4,6 @@ import time
 import numpy
 import torch
 import random
-
-
 from copy import deepcopy
 from .abstract_game import AbstractGame
 
@@ -28,7 +26,7 @@ class MuZeroConfig:
         self.observation_shape = (1,grid_size, grid_size)
         self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
-        self.stacked_observations = 2#0  # Number of previous observations and previous actions to add to the current observation
+        self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
 
         # Evaluate
         self.muzero_player = 0  # Turn Muzero begins to play (0: MuZero plays first, 1: MuZero plays second)
@@ -41,14 +39,15 @@ class MuZeroConfig:
         # 要使用GPU 必须环境中有GPU  这里再改成True
         # https://github.com/ray-project/ray/issues/30012#issuecomment-1364633366
         # pip install grpcio==1.51.3 就可以正常使用gpu了  还有说法是ray==2.0.0
+        
         self.selfplay_on_gpu = False#True #False
         self.max_moves = grid_size//2#6  # Maximum number of moves if game is not finished before
-        self.num_simulations = 200  # Number of future moves self-simulated
+        self.num_simulations = 50  # Number of future moves self-simulated
         self.discount = 1.0# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
         # Root prior exploration noise
-        self.root_dirichlet_alpha = 0.25
+        self.root_dirichlet_alpha = 0.3#0.25
         self.root_exploration_fraction = 0.25
 
         # UCB formula
@@ -62,23 +61,23 @@ class MuZeroConfig:
         self.support_size = 10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
         
         # Residual Network
-        self.downsample = "resnet"#False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
+        self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
         self.blocks = 6#1  # Number of blocks in the ResNet
         self.channels = 128#2  # Number of channels in the ResNet
-        self.reduced_channels_reward = 4#2  # Number of channels in reward head
-        self.reduced_channels_value = 4#2  # Number of channels in value head
+        self.reduced_channels_reward = 2#2  # Number of channels in reward head
+        self.reduced_channels_value = 2#2  # Number of channels in value head
         self.reduced_channels_policy = 4#2  # Number of channels in policy head
         self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
         self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
         self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
-        self.encoding_size = 256#5
-        self.fc_representation_layers =[256] #[16]  # Define the hidden layers in the representation network
-        self.fc_dynamics_layers = [256] #[16]  # Define the hidden layers in the dynamics network
-        self.fc_reward_layers = [256] #[16]  # Define the hidden layers in the reward network
-        self.fc_value_layers = [256] #[16]  # Define the hidden layers in the value network
-        self.fc_policy_layers = [256] #[16]  # Define the hidden layers in the policy network
+        self.encoding_size = 32#5
+        self.fc_representation_layers =[] #[16]  # Define the hidden layers in the representation network
+        self.fc_dynamics_layers = [64] #[16]  # Define the hidden layers in the dynamics network
+        self.fc_reward_layers = [64] #[16]  # Define the hidden layers in the reward network
+        self.fc_value_layers = [] #[16]  # Define the hidden layers in the value network
+        self.fc_policy_layers = [] #[16]  # Define the hidden layers in the policy network
 
 
 
@@ -86,9 +85,9 @@ class MuZeroConfig:
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 50000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  32  # Number of parts of games to train on at each training step
-        self.checkpoint_interval = 10  # Number of training steps before using the model for self-playing
-        self.value_loss_weight = 0.25#1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
+        self.batch_size =  64  # Number of parts of games to train on at each training step
+        self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
+        self.value_loss_weight = 0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
         self.optimizer = "Adam"  # "Adam" or "SGD". Paper uses SGD
@@ -97,13 +96,13 @@ class MuZeroConfig:
 
         # Exponential learning rate schedule
         self.lr_init = 1e-3#0.0064  # Initial learning rate
-        self.lr_decay_rate = 0.99#1  # Set it to 1 to use a constant learning rate
-        self.lr_decay_steps = 200#1000
+        self.lr_decay_rate = 0.9#1  # Set it to 1 to use a constant learning rate
+        self.lr_decay_steps = 10000#1000
 
 
 
         ### Replay Buffer
-        self.replay_buffer_size = 20000  # Number of self-play games to keep in the replay buffer
+        self.replay_buffer_size = 10000  # Number of self-play games to keep in the replay buffer
         self.num_unroll_steps = 5  # Number of game moves to keep for every batch element
         self.td_steps = 5  # Number of steps in the future to take into account for calculating the target value
         self.PER = True  # Prioritized Replay (See paper appendix Training), select in priority the elements in the replay buffer which are unexpected for the network
@@ -116,7 +115,7 @@ class MuZeroConfig:
 
 
         ### Adjust the self play / training ratio to avoid over/underfitting
-        self.self_play_delay = 0.2  # Number of seconds to wait after each played game
+        self.self_play_delay = 0#0.2  # Number of seconds to wait after each played game
         self.training_delay = 0  # Number of seconds to wait after each training step
         self.ratio = None  # Desired training steps per self played step ratio. Equivalent to a synchronous version, training can take much longer. Set it to None to disable it
         # fmt: on
@@ -130,12 +129,12 @@ class MuZeroConfig:
             Positive float.
         """
         #return 0        
-        if trained_steps < 20:
-            return 0.5
+        if trained_steps < 20000:
+            return 1.0
         elif trained_steps < 40000:
-            return 0.25
+            return 0.5
         else:
-            return 0.2#0.25
+            return 0.25
 
 
 class Game(AbstractGame):
@@ -224,7 +223,7 @@ class GridEnv:
         self.size = size
         #self.position = [0, 0]
         self.position = None
-        self.MARK_NEGATIVE = 0.0
+        self.MARK_NEGATIVE = -100.0
         # 原始的action space为[0,100)
         
         # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
@@ -281,8 +280,8 @@ class GridEnv:
         reward = self.grid[self.position[0],self.position[1]]
         #print(f'123reward={reward}')
         # grid 变化太大？
-        self.grid[self.position, :] = self.MARK_NEGATIVE
-        self.grid[:, self.position] = self.MARK_NEGATIVE
+        #self.grid[self.position, :] = self.MARK_NEGATIVE
+        #self.grid[:, self.position] = self.MARK_NEGATIVE
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         done =  len(self.legal_actions())==0
         return self.get_observation(), reward, done#bool(reward)
