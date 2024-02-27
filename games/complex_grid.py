@@ -26,7 +26,7 @@ class MuZeroConfig:
         self.observation_shape = (1,grid_size, grid_size)
         self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
-        self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
+        self.stacked_observations = 1  # Number of previous observations and previous actions to add to the current observation
 
         # Evaluate
         self.muzero_player = 0  # Turn Muzero begins to play (0: MuZero plays first, 1: MuZero plays second)
@@ -42,8 +42,8 @@ class MuZeroConfig:
         
         self.selfplay_on_gpu = False#True #False
         self.max_moves = grid_size//2#6  # Maximum number of moves if game is not finished before
-        self.num_simulations = 400  # Number of future moves self-simulated
-        self.discount = 0.99# 0.978  # Chronological discount of the reward
+        self.num_simulations = 20 # Number of future moves self-simulated
+        self.discount = 1# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
         # Root prior exploration noise
@@ -58,18 +58,18 @@ class MuZeroConfig:
 
         ### Network
         self.network = "resnet"#"fullyconnected"  # "resnet" / "fullyconnected"
-        self.support_size = 20#10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
+        self.support_size = 10#10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
         
         # Residual Network
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
         self.blocks = 6#1  # Number of blocks in the ResNet
-        self.channels = 128#2  # Number of channels in the ResNet
-        self.reduced_channels_reward = 2#2  # Number of channels in reward head
-        self.reduced_channels_value = 2#2  # Number of channels in value head
-        self.reduced_channels_policy = 4#2  # Number of channels in policy head
-        self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
+        self.channels = 16#2  # Number of channels in the ResNet
+        self.reduced_channels_reward = 16#2  # Number of channels in reward head
+        self.reduced_channels_value = 16#2  # Number of channels in value head
+        self.reduced_channels_policy = 16#2  # Number of channels in policy head
+        self.resnet_fc_reward_layers = []  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = []  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = []  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
         self.encoding_size = 32#5
@@ -85,7 +85,7 @@ class MuZeroConfig:
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 50000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  64  # Number of parts of games to train on at each training step
+        self.batch_size =  16  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
@@ -95,9 +95,9 @@ class MuZeroConfig:
         self.momentum = 0.9  # Used only if optimizer is SGD
 
         # Exponential learning rate schedule
-        self.lr_init = 1e-3#0.0064  # Initial learning rate
+        self.lr_init = 1e-4#0.0064  # Initial learning rate
         self.lr_decay_rate = 0.9#1  # Set it to 1 to use a constant learning rate
-        self.lr_decay_steps = 10000#1000
+        self.lr_decay_steps = 5000#1000
 
 
 
@@ -323,9 +323,9 @@ class GridEnv:
         #done =  len(self.legal_actions())==0
         if done :
             if self.agent_get_reward>=self.h_score :
-                reward = +10
+                reward += 5
             else:
-                reward = -10
+                reward -= 5
         
         return self.get_observation(), reward, done#bool(reward)
 
