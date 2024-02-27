@@ -63,13 +63,13 @@ class MuZeroConfig:
         # Residual Network
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
         self.blocks = 6#1  # Number of blocks in the ResNet
-        self.channels = 16#2  # Number of channels in the ResNet
-        self.reduced_channels_reward = 16#2  # Number of channels in reward head
-        self.reduced_channels_value = 16#2  # Number of channels in value head
-        self.reduced_channels_policy = 16#2  # Number of channels in policy head
-        self.resnet_fc_reward_layers = []  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = []  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = []  # Define the hidden layers in the policy head of the prediction network
+        self.channels = 128#2  # Number of channels in the ResNet
+        self.reduced_channels_reward = 2#2  # Number of channels in reward head
+        self.reduced_channels_value = 2#2  # Number of channels in value head
+        self.reduced_channels_policy = 4#2  # Number of channels in policy head
+        self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
         self.encoding_size = 32#5
