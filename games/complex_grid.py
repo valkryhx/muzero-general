@@ -314,16 +314,16 @@ class GridEnv:
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
         #reward = self.grid[*self.position] 
         reward = self.grid[self.position[0],self.position[1]] - self.h_score / (grid_size/2)
-        #self.agent_get_reward += reward
+        self.agent_get_reward += reward
         #print(f'123reward={reward}')
         # grid 变化太大？
         self.grid[self.position, :] = self.MARK_NEGATIVE
         self.grid[:, self.position] = self.MARK_NEGATIVE
         done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         #done =  len(self.legal_actions())==0
-        #if done :
-        #    if self.agent_get_reward>=self.h_score :
-        #       reward += -self.h_score#5
+        if done :
+            if self.agent_get_reward>= 0 :
+               reward += 5
         #    else:
         #        reward += -self.h_score#5
         
