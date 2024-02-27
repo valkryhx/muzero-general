@@ -130,11 +130,11 @@ class MuZeroConfig:
         """
         #return 0        
         if trained_steps < 20000:
-            return 1.0
-        elif trained_steps < 40000:
             return 0.5
+        elif trained_steps < 40000:
+            return 0.3
         else:
-            return 0.25
+            return 0.1
 
 
 class Game(AbstractGame):
