@@ -30,7 +30,7 @@ class MuZeroConfig:
         self.observation_shape = (2,grid_size, grid_size)
         self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
-        self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
+        self.stacked_observations = 3  # Number of previous observations and previous actions to add to the current observation
 
         # Evaluate
         self.muzero_player = 0  # Turn Muzero begins to play (0: MuZero plays first, 1: MuZero plays second)
@@ -46,7 +46,7 @@ class MuZeroConfig:
         
         self.selfplay_on_gpu = False#True #False
         self.max_moves = grid_size//2#6  # Maximum number of moves if game is not finished before
-        self.num_simulations = 800 # Number of future moves self-simulated
+        self.num_simulations = 400 # Number of future moves self-simulated
         self.discount = 1# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -337,9 +337,10 @@ class GridEnv:
         done = (numpy.max(self.mark) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         #done =  len(self.legal_actions())==0
         #reward =0
-        #if done :
-        #    #if self.agent_get_reward>= self.h_score :
-        #    reward = self.agent_get_reward - self.h_score
+        if done :
+            #if self.agent_get_reward>= self.h_score :
+            #reward = self.agent_get_reward - self.h_score
+            reward +=   -self.h_score
             
         
         return self.get_observation(), reward, done#bool(reward)
