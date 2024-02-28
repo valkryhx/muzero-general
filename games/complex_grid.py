@@ -47,7 +47,7 @@ class MuZeroConfig:
         
         self.selfplay_on_gpu = False#True #False
         self.max_moves = 25#grid_size//2#6  # Maximum number of moves if game is not finished before
-        self.num_simulations = 400 # Number of future moves self-simulated
+        self.num_simulations = 800 # Number of future moves self-simulated
         self.discount = 1# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -92,7 +92,7 @@ class MuZeroConfig:
         self.training_steps = 5000#30000  # Total number of training steps (ie weights update according to a batch)
         self.batch_size =  64  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
-        self.value_loss_weight = 1#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
+        self.value_loss_weight = 0.25#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
         self.optimizer = "Adam"  # "Adam" or "SGD". Paper uses SGD
@@ -100,7 +100,7 @@ class MuZeroConfig:
         self.momentum = 0.9  # Used only if optimizer is SGD
 
         # Exponential learning rate schedule
-        self.lr_init = 2e-3#0.0064  # Initial learning rate
+        self.lr_init = 2e-4#0.0064  # Initial learning rate
         self.lr_decay_rate = 0.95#1  # Set it to 1 to use a constant learning rate
         self.lr_decay_steps = 1000#1000
 
@@ -109,7 +109,7 @@ class MuZeroConfig:
         ### Replay Buffer
         self.replay_buffer_size = 10000  # Number of self-play games to keep in the replay buffer
         self.num_unroll_steps = 25  # Number of game moves to keep for every batch element
-        self.td_steps = 25  # Number of steps in the future to take into account for calculating the target value
+        self.td_steps = 50  # Number of steps in the future to take into account for calculating the target value
         self.PER = True  # Prioritized Replay (See paper appendix Training), select in priority the elements in the replay buffer which are unexpected for the network
         self.PER_alpha = 0.5  # How much prioritization is used, 0 corresponding to the uniform case, paper suggests 1
 
