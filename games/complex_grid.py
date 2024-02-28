@@ -148,6 +148,7 @@ class Game(AbstractGame):
     def __init__(self, seed=None):
         # modified 20240226
         self.env = GridEnv(size=grid_size)
+        print(f'h_score={self.env.h_score}')
 
     def step(self, action):
         """
