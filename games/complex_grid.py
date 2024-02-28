@@ -26,7 +26,7 @@ class MuZeroConfig:
         #self.observation_shape = (1, 1, grid_size*grid_size)
         #self.observation_shape = (1,grid_size, grid_size)
         # grid和marked_position 两个np.array 所以是2 。这次不在grid上修改保留原始信息
-        self.observation_shape = (2,grid_size, grid_size)
+        self.observation_shape = (1,grid_size, grid_size)
         self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
         self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
@@ -324,16 +324,16 @@ class GridEnv:
         #不能写成reward = self.grid[self.position] 因为self.position=[1,1] 会导致grid[1,1]取得是两行
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
         #reward = self.grid[*self.position] 
-        reward = self.grid[self.position[0],self.position[1]]  - self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
+        reward = self.grid[self.position[0],self.position[1]]  #- self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
         self.agent_get_reward += reward
         #print(f'123reward={reward}')
         # grid 变化太剧烈? 所以换成mark来记录已经不能下的位置
         self.grid[self.position, :] = self.MARK_NEGATIVE
         self.grid[:, self.position] = self.MARK_NEGATIVE
-        self.mark[self.position, :] = self.MARK_NEGATIVE
-        self.mark[:, self.position] = self.MARK_NEGATIVE
+        #self.mark[self.position, :] = self.MARK_NEGATIVE
+        #self.mark[:, self.position] = self.MARK_NEGATIVE
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
-        done = (numpy.max(self.mark) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
+        done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         #done =  len(self.legal_actions())==0
         #reward =0
         #if done :
@@ -380,7 +380,8 @@ class GridEnv:
     def get_observation(self):
         #observation = numpy.zeros((self.size, self.size))
         #observation[self.position[0]][self.position[1]] = 1
-        observation = [self.grid ,self.mark]
+        #observation = [self.grid ,self.mark]
+        observation = [self.grid]
         # flatten 把二维3x3 拉成 单独的1维为9的np array
         #return observation.flatten()
         return numpy.array(observation)
