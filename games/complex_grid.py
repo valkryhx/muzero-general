@@ -27,7 +27,7 @@ class MuZeroConfig:
         #self.observation_shape = (1, 1, grid_size*grid_size)
         #self.observation_shape = (1,grid_size, grid_size)
         # grid和marked_position 两个np.array 所以是2 。这次不在grid上修改保留原始信息
-        self.observation_shape = (1,grid_size, grid_size)
+        self.observation_shape = (2,grid_size, grid_size)
         self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
         self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
@@ -89,7 +89,7 @@ class MuZeroConfig:
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 2000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  32  # Number of parts of games to train on at each training step
+        self.batch_size =  512  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 0.25#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
@@ -247,7 +247,7 @@ class GridEnv:
         self.grid = numpy.random.rand(grid_size,grid_size)
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
         # marked_position rest
-        #self.mark = numpy.zeros([grid_size,grid_size])
+        self.mark = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
         print(f'h_score={self.h_score}')
@@ -325,16 +325,16 @@ class GridEnv:
         #不能写成reward = self.grid[self.position] 因为self.position=[1,1] 会导致grid[1,1]取得是两行
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
         #reward = self.grid[*self.position] 
-        reward = self.grid[self.position[0],self.position[1]]  #- self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
+        reward = self.grid[self.position[0],self.position[1]]  - self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
         self.agent_get_reward += reward
         #print(f'123reward={reward}')
         # grid 变化太剧烈? 所以换成mark来记录已经不能下的位置
-        self.grid[self.position, :] = self.MARK_NEGATIVE
-        self.grid[:, self.position] = self.MARK_NEGATIVE
-        #self.mark[self.position, :] = self.MARK_NEGATIVE
-        #self.mark[:, self.position] = self.MARK_NEGATIVE
+        #self.grid[self.position, :] = self.MARK_NEGATIVE
+        #self.grid[:, self.position] = self.MARK_NEGATIVE
+        self.mark[self.position, :] = self.MARK_NEGATIVE
+        self.mark[:, self.position] = self.MARK_NEGATIVE
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
-        done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
+        done = (numpy.max(self.mark) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         #done =  len(self.legal_actions())==0
         #reward =0
         #if done :
@@ -381,8 +381,8 @@ class GridEnv:
     def get_observation(self):
         #observation = numpy.zeros((self.size, self.size))
         #observation[self.position[0]][self.position[1]] = 1
-        #observation = [self.grid ,self.mark]
-        observation = [self.grid]
+        observation = [self.grid ,self.mark]
+        #observation = [self.grid]
         # flatten 把二维3x3 拉成 单独的1维为9的np array
         #return observation.flatten()
         return numpy.array(observation)
