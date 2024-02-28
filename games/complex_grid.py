@@ -327,6 +327,10 @@ class GridEnv:
         #不能写成reward = self.grid[self.position] 因为self.position=[1,1] 会导致grid[1,1]取得是两行
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
         #reward = self.grid[*self.position] 
+        # 这个位置是非法的 也pass
+        if self.grid[self.position[0],self.position[1]]<=self.MARK_NEGATIVE:
+            done = (numpy.max(self.mark) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
+            return self.get_observation(), 0, done#bool(reward)
         reward = self.grid[self.position[0],self.position[1]]  - self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
         self.agent_get_reward += reward
         #print(f'123reward={reward}')
