@@ -60,7 +60,7 @@ class MuZeroConfig:
 
         ### Network
         self.network = "resnet"#"fullyconnected"  # "resnet" / "fullyconnected"
-        self.support_size = 1#10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
+        self.support_size = 10#10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
         
         # Residual Network
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
@@ -325,8 +325,8 @@ class GridEnv:
         self.agent_get_reward += reward
         #print(f'123reward={reward}')
         # grid 变化太剧烈? 所以换成mark来记录已经不能下的位置
-        #self.grid[self.position, :] = self.MARK_NEGATIVE
-        #self.grid[:, self.position] = self.MARK_NEGATIVE
+        self.grid[self.position, :] = self.MARK_NEGATIVE
+        self.grid[:, self.position] = self.MARK_NEGATIVE
         self.mark[self.position, :] = self.MARK_NEGATIVE
         self.mark[:, self.position] = self.MARK_NEGATIVE
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
