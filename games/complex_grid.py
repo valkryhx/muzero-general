@@ -27,7 +27,7 @@ class MuZeroConfig:
         #self.observation_shape = (1, 1, grid_size*grid_size)
         #self.observation_shape = (1,grid_size, grid_size)
         # grid和marked_position 两个np.array 所以是2 。这次不在grid上修改保留原始信息
-        self.observation_shape = (3,grid_size, grid_size)
+        self.observation_shape = (8,grid_size, grid_size)
         #self.observation_shape = (1,1,grid_size*grid_size)
         self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
@@ -250,6 +250,11 @@ class GridEnv:
         # marked_position rest
         self.mark = numpy.zeros([grid_size,grid_size])
         self.pos_history = numpy.zeros([grid_size,grid_size])
+        self.pos_now = numpy.zeros([grid_size,grid_size])
+        self.invalid_1 = numpy.zeros([grid_size,grid_size])
+        self.invalid_2 = numpy.zeros([grid_size,grid_size])
+        self.invalid_3 = numpy.zeros([grid_size,grid_size])
+        self.invalid_4 = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
         print(f'h_score={self.h_score}')
@@ -341,7 +346,21 @@ class GridEnv:
         self.mark[self.position, :] = self.MARK_NEGATIVE
         self.mark[:, self.position] = self.MARK_NEGATIVE
         # pos  history
-        self.pos_history[self.position[0],self.position[1]] = 1
+        self.pos_history[self.position[0],self.position[1]] = 1        
+        
+        self.pos_now = numpy.zeros([grid_size,grid_size])
+        self.pos_now[self.position[0],self.position[1]] = 1
+        self.invalid_1 = numpy.zeros([grid_size,grid_size])
+        self.invalid_1[self.position[0], :]=1
+        self.invalid_2 = numpy.zeros([grid_size,grid_size])
+        self.invalid_2[self.position[1], :]=1
+        self.invalid_3 = numpy.zeros([grid_size,grid_size])
+        self.invalid_3[:, self.position[0]]=1
+        self.invalid_4 = numpy.zeros([grid_size,grid_size])
+        self.invalid_4[:, self.position[1]]=1
+        
+        
+        
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         done = (numpy.max(self.mark) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         #done =  len(self.legal_actions())==0
@@ -367,9 +386,16 @@ class GridEnv:
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
 
         # marked_position reset
-        self.mark = numpy.zeros([grid_size,grid_size])
+        
         # pos history 
-        self.pos_history = numpy.zeros([grid_size,grid_size]) 
+        # marked_position rest
+        self.mark = numpy.zeros([grid_size,grid_size])
+        self.pos_history = numpy.zeros([grid_size,grid_size])
+        self.pos_now = numpy.zeros([grid_size,grid_size])
+        self.invalid_1 = numpy.zeros([grid_size,grid_size])
+        self.invalid_2 = numpy.zeros([grid_size,grid_size])
+        self.invalid_3 = numpy.zeros([grid_size,grid_size])
+        self.invalid_4 = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
         self.agent_get_reward =0
@@ -394,7 +420,7 @@ class GridEnv:
         #observation[self.position[0]][self.position[1]] = 1
         #observation = [self.grid ,self.mark]
         #observation = [self.grid]
-        observation = [self.grid ,self.pos_history,self.mark]
+        observation = [self.grid ,self.pos_history,self.mark,self.pos_now,self.invalid_1,self.invalid_2,self.invalid_3,self.invalid_4]
         #observation = self.grid.flatten()
         # flatten 把二维3x3 拉成 单独的1维为9的np array
         #return observation.flatten()
