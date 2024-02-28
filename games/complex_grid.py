@@ -328,8 +328,8 @@ class GridEnv:
         self.agent_get_reward += reward
         #print(f'123reward={reward}')
         # grid 变化太剧烈? 所以换成mark来记录已经不能下的位置
-        #self.grid[self.position, :] = self.MARK_NEGATIVE
-        #self.grid[:, self.position] = self.MARK_NEGATIVE
+        self.grid[self.position, :] = self.MARK_NEGATIVE
+        self.grid[:, self.position] = self.MARK_NEGATIVE
         self.mark[self.position, :] = self.MARK_NEGATIVE
         self.mark[:, self.position] = self.MARK_NEGATIVE
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
