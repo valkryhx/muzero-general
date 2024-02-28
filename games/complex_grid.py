@@ -28,7 +28,7 @@ class MuZeroConfig:
         self.observation_shape = (2,grid_size, grid_size)
         self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
-        self.stacked_observations = 3  # Number of previous observations and previous actions to add to the current observation
+        self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
 
         # Evaluate
         self.muzero_player = 0  # Turn Muzero begins to play (0: MuZero plays first, 1: MuZero plays second)
@@ -49,7 +49,7 @@ class MuZeroConfig:
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
         # Root prior exploration noise
-        self.root_dirichlet_alpha = 0.25#0.25
+        self.root_dirichlet_alpha = 0.3#0.25
         self.root_exploration_fraction = 0.25
 
         # UCB formula
@@ -66,12 +66,12 @@ class MuZeroConfig:
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
         self.blocks = 6#1  # Number of blocks in the ResNet
         self.channels = 128#2  # Number of channels in the ResNet
-        self.reduced_channels_reward = 8#2  # Number of channels in reward head
-        self.reduced_channels_value = 8#2  # Number of channels in value head
-        self.reduced_channels_policy = 16#2  # Number of channels in policy head
-        self.resnet_fc_reward_layers = [16]  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = [16]  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = [16]  # Define the hidden layers in the policy head of the prediction network
+        self.reduced_channels_reward = 2#2  # Number of channels in reward head
+        self.reduced_channels_value = 2#2  # Number of channels in value head
+        self.reduced_channels_policy = 4#2  # Number of channels in policy head
+        self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
         self.encoding_size = 32#5
@@ -86,10 +86,10 @@ class MuZeroConfig:
         ### Training
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 40000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  64  # Number of parts of games to train on at each training step
-        self.checkpoint_interval = 10#10  # Number of training steps before using the model for self-playing
-        self.value_loss_weight = 0.25#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
+        self.training_steps = 10000#30000  # Total number of training steps (ie weights update according to a batch)
+        self.batch_size =  512  # Number of parts of games to train on at each training step
+        self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
+        self.value_loss_weight = 1#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
         self.optimizer = "Adam"  # "Adam" or "SGD". Paper uses SGD
@@ -321,7 +321,7 @@ class GridEnv:
         #不能写成reward = self.grid[self.position] 因为self.position=[1,1] 会导致grid[1,1]取得是两行
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
         #reward = self.grid[*self.position] 
-        get_reward = self.grid[self.position[0],self.position[1]]  - self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
+        reward = self.grid[self.position[0],self.position[1]]  - self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
         self.agent_get_reward += get_reward
         #print(f'123reward={reward}')
         # grid 变化太剧烈? 所以换成mark来记录已经不能下的位置
@@ -332,10 +332,10 @@ class GridEnv:
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         done = (numpy.max(self.mark) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         #done =  len(self.legal_actions())==0
-        reward =0
-        if done :
-            #if self.agent_get_reward>= self.h_score :
-            reward = self.agent_get_reward - self.h_score
+        #reward =0
+        #if done :
+        #    #if self.agent_get_reward>= self.h_score :
+        #    reward = self.agent_get_reward - self.h_score
             
         
         return self.get_observation(), reward, done#bool(reward)
