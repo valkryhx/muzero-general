@@ -244,7 +244,7 @@ class GridEnv:
         #a_100 = list(range(1, grid_size*grid_size + 1))
         #random.shuffle(a_100)
         #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
-        numpy.random.seed(seed)
+        #numpy.random.seed(seed)
         self.grid = numpy.random.rand(grid_size,grid_size)#*10
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
         # marked_position rest
@@ -362,7 +362,7 @@ class GridEnv:
         #a_100 = list(range(1, grid_size*grid_size + 1))
         #random.shuffle(a_100)
         #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
-        numpy.random.seed(seed)
+        #numpy.random.seed(seed)
         self.grid = numpy.random.rand(grid_size,grid_size)#*10
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
 
