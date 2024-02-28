@@ -8,7 +8,7 @@ from copy import deepcopy
 from .abstract_game import AbstractGame
 
 grid_size = 10
-seed = numpy.random.randint(100000)
+grid = numpy.random.rand(grid_size,grid_size)
 class MuZeroConfig:
     def __init__(self):
         # fmt: off
@@ -242,11 +242,11 @@ class GridEnv:
         #a_100 = list(range(1, grid_size*grid_size + 1))
         #random.shuffle(a_100)
         #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
-        numpy.random.seed(seed)
-        self.grid = numpy.random.rand(grid_size,grid_size)
+        #numpy.random.seed(seed)
+        self.grid = grid #numpy.random.rand(grid_size,grid_size)
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
         # marked_position rest
-        self.mark = numpy.zeros([grid_size,grid_size])
+        #self.mark = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
         print(f'h_score={self.h_score}')
@@ -351,8 +351,8 @@ class GridEnv:
         #a_100 = list(range(1, grid_size*grid_size + 1))
         #random.shuffle(a_100)
         #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
-        numpy.random.seed(seed)
-        #self.grid = numpy.random.rand(grid_size,grid_size)
+        #numpy.random.seed(seed)
+        self.grid = grid #numpy.random.rand(grid_size,grid_size)
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
 
         # marked_position reset
@@ -372,7 +372,7 @@ class GridEnv:
     def render(self):
         #im = numpy.full((self.size, self.size), "-")
         #im[self.size - 1, self.size - 1] = "1"
-        im = deepcopy(self.grid) - deepcopy(self.mark)
+        im = deepcopy(self.grid) #- deepcopy(self.mark)
         if self.position and len(self.position)>0:
             im[self.position[0], self.position[1]] = 200
         print(im)
