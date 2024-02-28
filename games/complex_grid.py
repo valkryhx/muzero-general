@@ -44,7 +44,7 @@ class MuZeroConfig:
         
         self.selfplay_on_gpu = False#True #False
         self.max_moves = grid_size//2#6  # Maximum number of moves if game is not finished before
-        self.num_simulations = 100 # Number of future moves self-simulated
+        self.num_simulations = 20 # Number of future moves self-simulated
         self.discount = 1# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -69,9 +69,9 @@ class MuZeroConfig:
         self.reduced_channels_reward = 8#2  # Number of channels in reward head
         self.reduced_channels_value = 8#2  # Number of channels in value head
         self.reduced_channels_policy = 16#2  # Number of channels in policy head
-        self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
-        self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
-        self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
+        self.resnet_fc_reward_layers = [16]  # Define the hidden layers in the reward head of the dynamic network
+        self.resnet_fc_value_layers = [16]  # Define the hidden layers in the value head of the prediction network
+        self.resnet_fc_policy_layers = [16]  # Define the hidden layers in the policy head of the prediction network
 
         # Fully Connected Network
         self.encoding_size = 32#5
@@ -86,8 +86,8 @@ class MuZeroConfig:
         ### Training
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 400000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  32  # Number of parts of games to train on at each training step
+        self.training_steps = 40000#30000  # Total number of training steps (ie weights update according to a batch)
+        self.batch_size =  16  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 10#10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 0.25#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
@@ -237,14 +237,16 @@ class GridEnv:
         self.position = None # [0, 0]
         
         # grid reset
-        a_100 = list(range(1, grid_size*grid_size + 1))
-        random.shuffle(a_100)
-        self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
+        #a_100 = list(range(1, grid_size*grid_size + 1))
+        #random.shuffle(a_100)
+        #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
+        self.grid = numpy.random.rand(grid_size,grid_size)
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
         # marked_position rest
         self.mark = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
+        print(f'h_score={self.h_score}')
         self.agent_get_reward =0
         # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
         self._used_actions=set([])
@@ -319,8 +321,8 @@ class GridEnv:
         #不能写成reward = self.grid[self.position] 因为self.position=[1,1] 会导致grid[1,1]取得是两行
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
         #reward = self.grid[*self.position] 
-        reward = self.grid[self.position[0],self.position[1]]  - self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
-        self.agent_get_reward += reward
+        get_reward = self.grid[self.position[0],self.position[1]]  - self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
+        self.agent_get_reward += get_reward
         #print(f'123reward={reward}')
         # grid 变化太剧烈? 所以换成mark来记录已经不能下的位置
         #self.grid[self.position, :] = self.MARK_NEGATIVE
@@ -330,11 +332,11 @@ class GridEnv:
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         done = (numpy.max(self.mark) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
         #done =  len(self.legal_actions())==0
+        reward =0
         if done :
             if self.agent_get_reward>= self.h_score :
-               reward += 5
-        #    else:
-        #        reward += -self.h_score#5
+               reward = 1
+            
         
         return self.get_observation(), reward, done#bool(reward)
 
@@ -343,9 +345,10 @@ class GridEnv:
         self.position = None # [0, 0]
         
         # grid reset
-        a_100 = list(range(1, grid_size*grid_size + 1))
-        random.shuffle(a_100)
-        self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
+        #a_100 = list(range(1, grid_size*grid_size + 1))
+        #random.shuffle(a_100)
+        #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
+        self.grid = numpy.random.rand(grid_size,grid_size)
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
 
         # marked_position reset
