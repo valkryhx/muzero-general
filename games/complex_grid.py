@@ -47,7 +47,7 @@ class MuZeroConfig:
         
         self.selfplay_on_gpu = False#True #False
         self.max_moves = grid_size//2#6  # Maximum number of moves if game is not finished before
-        self.num_simulations = 800 # Number of future moves self-simulated
+        self.num_simulations = 10 # Number of future moves self-simulated
         self.discount = 1# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
