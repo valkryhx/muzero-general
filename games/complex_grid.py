@@ -47,7 +47,7 @@ class MuZeroConfig:
         
         self.selfplay_on_gpu = False#True #False
         self.max_moves = 25#grid_size//2#6  # Maximum number of moves if game is not finished before
-        self.num_simulations = 50 # Number of future moves self-simulated
+        self.num_simulations = 400 # Number of future moves self-simulated
         self.discount = 1# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -67,11 +67,11 @@ class MuZeroConfig:
         
         # Residual Network
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
-        self.blocks = 6#1  # Number of blocks in the ResNet
-        self.channels = 128#2  # Number of channels in the ResNet
-        self.reduced_channels_reward = 2#2  # Number of channels in reward head
-        self.reduced_channels_value = 2#2  # Number of channels in value head
-        self.reduced_channels_policy = 4#2  # Number of channels in policy head
+        self.blocks = 16#1  # Number of blocks in the ResNet
+        self.channels = 256#2  # Number of channels in the ResNet
+        self.reduced_channels_reward = 4#2  # Number of channels in reward head
+        self.reduced_channels_value = 4#2  # Number of channels in value head
+        self.reduced_channels_policy = 8#2  # Number of channels in policy head
         self.resnet_fc_reward_layers = [64]  # Define the hidden layers in the reward head of the dynamic network
         self.resnet_fc_value_layers = [64]  # Define the hidden layers in the value head of the prediction network
         self.resnet_fc_policy_layers = [64]  # Define the hidden layers in the policy head of the prediction network
