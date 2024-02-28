@@ -45,8 +45,8 @@ class MuZeroConfig:
         # pip install grpcio==1.51.3 就可以正常使用gpu了  还有说法是ray==2.0.0
         
         self.selfplay_on_gpu = False#True #False
-        self.max_moves = grid_size//2#6  # Maximum number of moves if game is not finished before
-        self.num_simulations = 400 # Number of future moves self-simulated
+        self.max_moves = 25#grid_size//2#6  # Maximum number of moves if game is not finished before
+        self.num_simulations = 50 # Number of future moves self-simulated
         self.discount = 1# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -89,7 +89,7 @@ class MuZeroConfig:
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 5000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  512  # Number of parts of games to train on at each training step
+        self.batch_size =  32  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
@@ -107,8 +107,8 @@ class MuZeroConfig:
 
         ### Replay Buffer
         self.replay_buffer_size = 10000  # Number of self-play games to keep in the replay buffer
-        self.num_unroll_steps = 5  # Number of game moves to keep for every batch element
-        self.td_steps = 5  # Number of steps in the future to take into account for calculating the target value
+        self.num_unroll_steps = 25  # Number of game moves to keep for every batch element
+        self.td_steps = 25  # Number of steps in the future to take into account for calculating the target value
         self.PER = True  # Prioritized Replay (See paper appendix Training), select in priority the elements in the replay buffer which are unexpected for the network
         self.PER_alpha = 0.5  # How much prioritization is used, 0 corresponding to the uniform case, paper suggests 1
 
@@ -299,7 +299,8 @@ class GridEnv:
             self._used_actions = self._used_actions | marked_row_act_0 | marked_row_act_1 | marked_col_act_0 | marked_col_act_1
             legal_actions = list(legal_actions -self._invalid_actions -  self._used_actions)
         #print(f'legal_actions={legal_actions}')
-        return legal_actions #list(self._actions)
+        #return legal_actions #list(self._actions)
+        return list(self._actions)
         
         
     # def step(self, action):
@@ -329,8 +330,8 @@ class GridEnv:
         self.agent_get_reward += reward
         #print(f'123reward={reward}')
         # grid 变化太剧烈? 所以换成mark来记录已经不能下的位置
-        #self.grid[self.position, :] = self.MARK_NEGATIVE
-        #self.grid[:, self.position] = self.MARK_NEGATIVE
+        self.grid[self.position, :] = self.MARK_NEGATIVE
+        self.grid[:, self.position] = self.MARK_NEGATIVE
         self.mark[self.position, :] = self.MARK_NEGATIVE
         self.mark[:, self.position] = self.MARK_NEGATIVE
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
