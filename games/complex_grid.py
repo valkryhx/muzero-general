@@ -338,9 +338,9 @@ class GridEnv:
         #done =  len(self.legal_actions())==0
         #reward =0
         if done :
-            #if self.agent_get_reward>= self.h_score :
+            if self.agent_get_reward>= self.h_score :
             #reward = self.agent_get_reward - self.h_score
-            reward +=   -self.h_score
+            reward +=   100
             
         
         return self.get_observation(), reward, done#bool(reward)
