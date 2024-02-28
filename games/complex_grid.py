@@ -133,12 +133,12 @@ class MuZeroConfig:
             Positive float.
         """
         #return 0        
-        if trained_steps < 5000:
+        if trained_steps < 500:
             return 1
         elif trained_steps < 30000:
-            return 0.5
-        else:
             return 0.25
+        else:
+            return 0.15
 
 
 class Game(AbstractGame):
