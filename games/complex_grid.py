@@ -322,7 +322,7 @@ class GridEnv:
         # 或者写成reward = self.grid[self.position[0],self.position[1]] 
         #reward = self.grid[*self.position] 
         reward = self.grid[self.position[0],self.position[1]]  - self.mark[self.position[0],self.position[1]] #- self.h_score / (grid_size/2)
-        self.agent_get_reward += get_reward
+        self.agent_get_reward += reward
         #print(f'123reward={reward}')
         # grid 变化太剧烈? 所以换成mark来记录已经不能下的位置
         #self.grid[self.position, :] = self.MARK_NEGATIVE
