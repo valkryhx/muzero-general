@@ -51,7 +51,7 @@ class MuZeroConfig:
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
         # Root prior exploration noise
-        self.root_dirichlet_alpha = 0.3#0.25
+        self.root_dirichlet_alpha = 0.25#0.25
         self.root_exploration_fraction = 0.25
 
         # UCB formula
@@ -89,7 +89,7 @@ class MuZeroConfig:
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 2000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  512  # Number of parts of games to train on at each training step
+        self.batch_size =  32  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
@@ -99,7 +99,7 @@ class MuZeroConfig:
         self.momentum = 0.9  # Used only if optimizer is SGD
 
         # Exponential learning rate schedule
-        self.lr_init = 1e-3#0.0064  # Initial learning rate
+        self.lr_init = 1e-4#0.0064  # Initial learning rate
         self.lr_decay_rate = 0.95#1  # Set it to 1 to use a constant learning rate
         self.lr_decay_steps = 1000#1000
 
