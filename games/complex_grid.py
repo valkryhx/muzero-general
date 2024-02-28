@@ -8,6 +8,7 @@ from copy import deepcopy
 from .abstract_game import AbstractGame
 
 grid_size = 10
+seed = numpy.random.randint(100000)
 class MuZeroConfig:
     def __init__(self):
         # fmt: off
@@ -86,7 +87,7 @@ class MuZeroConfig:
         ### Training
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
-        self.training_steps = 10000#30000  # Total number of training steps (ie weights update according to a batch)
+        self.training_steps = 1000#30000  # Total number of training steps (ie weights update according to a batch)
         self.batch_size =  512  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
@@ -240,14 +241,14 @@ class GridEnv:
         #a_100 = list(range(1, grid_size*grid_size + 1))
         #random.shuffle(a_100)
         #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
-        numpy.random.seed(42)
+        numpy.random.seed(seed)
         self.grid = numpy.random.rand(grid_size,grid_size)
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
         # marked_position rest
         self.mark = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
-        #print(f'h_score={self.h_score}')
+        print(f'h_score={self.h_score}')
         self.agent_get_reward =0
         # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
         self._used_actions=set([])
@@ -349,7 +350,7 @@ class GridEnv:
         #a_100 = list(range(1, grid_size*grid_size + 1))
         #random.shuffle(a_100)
         #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
-        numpy.random.seed(42)
+        numpy.random.seed(seed)
         #self.grid = numpy.random.rand(grid_size,grid_size)
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
 
