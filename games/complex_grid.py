@@ -229,7 +229,7 @@ class GridEnv:
     def __init__(self, size=3):
         self.size = size
         
-        self.MARK_NEGATIVE = -10.0
+        self.MARK_NEGATIVE = -20.0
         
         self.agent_get_reward =0
         # 原始的action space为[0,100)
