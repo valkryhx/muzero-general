@@ -685,7 +685,7 @@ if __name__ == "__main__":
                 print(f"{i}. {options[i]}")
 
             choice =str(3)#str(0)# input("Enter a number to choose an option: ")
-            choice =input("Enter a number to choose an option: ")
+            #choice =input("Enter a number to choose an option: ")
             valid_inputs = [str(i) for i in range(len(options))]
             while choice not in valid_inputs:
                 choice = input("muzero line 676: Invalid input, enter a number listed above: ")
