@@ -91,7 +91,7 @@ class MuZeroConfig:
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 50000#30000  # Total number of training steps (ie weights update according to a batch)
         self.batch_size =  200  # Number of parts of games to train on at each training step
-        self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
+        self.checkpoint_interval = 10#10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
@@ -114,7 +114,7 @@ class MuZeroConfig:
         self.PER_alpha = 0.5  # How much prioritization is used, 0 corresponding to the uniform case, paper suggests 1
 
         # Reanalyze (See paper appendix Reanalyse)
-        self.use_last_model_value = True  # Use the last model to provide a fresher, stable n-step value (See paper appendix Reanalyze)
+        self.use_last_model_value = False  # Use the last model to provide a fresher, stable n-step value (See paper appendix Reanalyze)
         self.reanalyse_on_gpu = False
 
 
