@@ -60,7 +60,7 @@ class MuZeroConfig:
 
         ### Network
         self.network = "resnet"#"fullyconnected"  # "resnet" / "fullyconnected"
-        self.support_size = 10#10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
+        self.support_size = 1#10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
         
         # Residual Network
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
@@ -87,9 +87,9 @@ class MuZeroConfig:
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 10000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  32  # Number of parts of games to train on at each training step
+        self.batch_size =  512  # Number of parts of games to train on at each training step
         self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
-        self.value_loss_weight = 0.25#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
+        self.value_loss_weight = 1#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
         self.optimizer = "Adam"  # "Adam" or "SGD". Paper uses SGD
@@ -97,7 +97,7 @@ class MuZeroConfig:
         self.momentum = 0.9  # Used only if optimizer is SGD
 
         # Exponential learning rate schedule
-        self.lr_init = 1e-4#0.0064  # Initial learning rate
+        self.lr_init = 1e-3#0.0064  # Initial learning rate
         self.lr_decay_rate = 0.95#1  # Set it to 1 to use a constant learning rate
         self.lr_decay_steps = 1000#1000
 
@@ -119,7 +119,7 @@ class MuZeroConfig:
         ### Adjust the self play / training ratio to avoid over/underfitting
         self.self_play_delay = 0.2  # Number of seconds to wait after each played game
         self.training_delay = 0  # Number of seconds to wait after each training step
-        self.ratio = None  # Desired training steps per self played step ratio. Equivalent to a synchronous version, training can take much longer. Set it to None to disable it
+        self.ratio = 1#None  # Desired training steps per self played step ratio. Equivalent to a synchronous version, training can take much longer. Set it to None to disable it
         # fmt: on
 
     def visit_softmax_temperature_fn(self, trained_steps):
@@ -237,16 +237,17 @@ class GridEnv:
         self.position = None # [0, 0]
         
         # grid reset
-        a_100 = list(range(1, grid_size*grid_size + 1))
+        #a_100 = list(range(1, grid_size*grid_size + 1))
         #random.shuffle(a_100)
-        self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
-        #self.grid = numpy.random.rand(grid_size,grid_size)
+        #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
+        numpy.random.seed(42)
+        self.grid = numpy.random.rand(grid_size,grid_size)
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
         # marked_position rest
         self.mark = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
-        print(f'h_score={self.h_score}')
+        #print(f'h_score={self.h_score}')
         self.agent_get_reward =0
         # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
         self._used_actions=set([])
@@ -325,8 +326,8 @@ class GridEnv:
         self.agent_get_reward += reward
         #print(f'123reward={reward}')
         # grid 变化太剧烈? 所以换成mark来记录已经不能下的位置
-        self.grid[self.position, :] = self.MARK_NEGATIVE
-        self.grid[:, self.position] = self.MARK_NEGATIVE
+        #self.grid[self.position, :] = self.MARK_NEGATIVE
+        #self.grid[:, self.position] = self.MARK_NEGATIVE
         self.mark[self.position, :] = self.MARK_NEGATIVE
         self.mark[:, self.position] = self.MARK_NEGATIVE
         #done = (numpy.max(self.grid) <= self.MARK_NEGATIVE) or len(self.legal_actions())==0
@@ -345,9 +346,10 @@ class GridEnv:
         self.position = None # [0, 0]
         
         # grid reset
-        a_100 = list(range(1, grid_size*grid_size + 1))
+        #a_100 = list(range(1, grid_size*grid_size + 1))
         #random.shuffle(a_100)
-        self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
+        #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
+        numpy.random.seed(42)
         #self.grid = numpy.random.rand(grid_size,grid_size)
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
 
