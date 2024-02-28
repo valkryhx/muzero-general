@@ -246,7 +246,7 @@ class GridEnv:
         self.mark = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
-        print(f'h_score={self.h_score}')
+        #print(f'h_score={self.h_score}')
         self.agent_get_reward =0
         # 每次step都会更新 _used_actions ，使用_actions - _used_actions - _invalid_actions，剩下的才是合法的action space
         self._used_actions=set([])
@@ -334,8 +334,8 @@ class GridEnv:
         #done =  len(self.legal_actions())==0
         reward =0
         if done :
-            if self.agent_get_reward>= self.h_score :
-               reward = 1
+            #if self.agent_get_reward>= self.h_score :
+            reward = self.agent_get_reward - self.h_score
             
         
         return self.get_observation(), reward, done#bool(reward)
