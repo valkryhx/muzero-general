@@ -654,8 +654,8 @@ if __name__ == "__main__":
         ]
         for i in range(len(games)):
             print(f"{i}. {games[i]}")
-        #choice = str(7) #input("Enter a number to choose the game: ")
-        choice = input("Enter a number to choose the game: ")
+        choice = str(3) #input("Enter a number to choose the game: ")
+        #choice = input("Enter a number to choose the game: ")
         valid_inputs = [str(i) for i in range(len(games))]
         print(f'choice={choice}')
         print(f'valid_inputs={valid_inputs}')
@@ -684,7 +684,7 @@ if __name__ == "__main__":
             for i in range(len(options)):
                 print(f"{i}. {options[i]}")
 
-            #choice =str(0)#str(0)# input("Enter a number to choose an option: ")
+            choice =str(3)#str(0)# input("Enter a number to choose an option: ")
             choice =input("Enter a number to choose an option: ")
             valid_inputs = [str(i) for i in range(len(options))]
             while choice not in valid_inputs:
