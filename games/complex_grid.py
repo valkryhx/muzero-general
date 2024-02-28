@@ -300,8 +300,8 @@ class GridEnv:
             self._used_actions = self._used_actions | marked_row_act_0 | marked_row_act_1 | marked_col_act_0 | marked_col_act_1
             legal_actions = list(legal_actions -self._invalid_actions -  self._used_actions)
         #print(f'legal_actions={legal_actions}')
-        #return legal_actions #list(self._actions)
-        return list(self._actions)
+        return legal_actions #list(self._actions)
+        #return list(self._actions)
         
         
     # def step(self, action):
