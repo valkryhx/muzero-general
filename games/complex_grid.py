@@ -15,7 +15,7 @@ class MuZeroConfig:
         # fmt: off
         # More information is available here: https://github.com/werner-duvaud/muzero-general/wiki/Hyperparameter-Optimization
 
-        self.seed = 0  # Seed for numpy, torch and the game
+        self.seed = numpy.random.randint(100000)#0  # Seed for numpy, torch and the game
         # 下面 无论是否使用GPU 都不要改 None是默认使用全部GPU  如果没有GPU 自动使用CPU
         self.max_num_gpus = None  # Fix the maximum number of GPUs to use. It's usually faster to use a single GPU (set it to 1) if it has enough memory. None will use every GPUs available
 
@@ -244,7 +244,7 @@ class GridEnv:
         #a_100 = list(range(1, grid_size*grid_size + 1))
         #random.shuffle(a_100)
         #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
-        numpy.random.seed(seed)
+        #numpy.random.seed(seed)
         self.grid = numpy.random.rand(grid_size,grid_size)#*10
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
         # marked_position rest
@@ -381,7 +381,7 @@ class GridEnv:
         #a_100 = list(range(1, grid_size*grid_size + 1))
         #random.shuffle(a_100)
         #self.grid = numpy.array(a_100).reshape(grid_size, grid_size) / len(a_100)  # np.random.random((10, 10))
-        numpy.random.seed(seed)
+        #numpy.random.seed(seed)
         self.grid = numpy.random.rand(grid_size,grid_size)#*10
         numpy.fill_diagonal(self.grid, self.MARK_NEGATIVE)
 
