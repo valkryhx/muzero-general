@@ -9,7 +9,7 @@ from .abstract_game import AbstractGame
 
 grid_size = 10
 #grid = numpy.random.rand(grid_size,grid_size)
-seed = 42# numpy.random.randint(10000)
+seed = numpy.random.randint(100000)
 class MuZeroConfig:
     def __init__(self):
         # fmt: off
@@ -68,7 +68,7 @@ class MuZeroConfig:
         # Residual Network
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
         self.blocks = 6#1  # Number of blocks in the ResNet
-        self.channels = 256#2  # Number of channels in the ResNet
+        self.channels = 128#2  # Number of channels in the ResNet
         self.reduced_channels_reward = 2#2  # Number of channels in reward head
         self.reduced_channels_value = 2#2  # Number of channels in value head
         self.reduced_channels_policy = 4#2  # Number of channels in policy head
@@ -91,7 +91,7 @@ class MuZeroConfig:
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 50000#30000  # Total number of training steps (ie weights update according to a batch)
         self.batch_size =  200  # Number of parts of games to train on at each training step
-        self.checkpoint_interval = 10#10  # Number of training steps before using the model for self-playing
+        self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
@@ -108,8 +108,8 @@ class MuZeroConfig:
 
         ### Replay Buffer
         self.replay_buffer_size = 10000  # Number of self-play games to keep in the replay buffer
-        self.num_unroll_steps = 5  # Number of game moves to keep for every batch element
-        self.td_steps = 5  # Number of steps in the future to take into account for calculating the target value
+        self.num_unroll_steps = 100#5  # Number of game moves to keep for every batch element
+        self.td_steps = 100#5  # Number of steps in the future to take into account for calculating the target value
         self.PER = True  # Prioritized Replay (See paper appendix Training), select in priority the elements in the replay buffer which are unexpected for the network
         self.PER_alpha = 0.5  # How much prioritization is used, 0 corresponding to the uniform case, paper suggests 1
 
@@ -134,12 +134,12 @@ class MuZeroConfig:
             Positive float.
         """
         #return 0        
-        if trained_steps < 500:
-            return 1
-        elif trained_steps < 30000:
-            return 0.25
+        if trained_steps < 0.5 * self.training_steps:
+            return 1.0
+        elif trained_steps < 0.75 * self.training_steps:
+            return 0.5
         else:
-            return 0.15
+            return 0.25
 
 
 class Game(AbstractGame):
