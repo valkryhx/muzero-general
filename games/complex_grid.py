@@ -27,7 +27,7 @@ class MuZeroConfig:
         #self.observation_shape = (1, 1, grid_size*grid_size)
         #self.observation_shape = (1,grid_size, grid_size)
         # grid和marked_position 两个np.array 所以是2 。这次不在grid上修改保留原始信息
-        self.observation_shape = (8,grid_size, grid_size)
+        self.observation_shape = (3,grid_size, grid_size)
         #self.observation_shape = (1,1,grid_size*grid_size)
         self.action_space = list(range(grid_size*grid_size))#list(range(2))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(1))  # List of players. You should only edit the length
@@ -47,7 +47,7 @@ class MuZeroConfig:
         
         self.selfplay_on_gpu = False#True #False
         self.max_moves = grid_size//2#6  # Maximum number of moves if game is not finished before
-        self.num_simulations = 400 # Number of future moves self-simulated
+        self.num_simulations = 100 # Number of future moves self-simulated
         self.discount = 1# 0.978  # Chronological discount of the reward
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
@@ -67,8 +67,8 @@ class MuZeroConfig:
         
         # Residual Network
         self.downsample = False  # Downsample observations before representation network, False / "CNN" (lighter) / "resnet" (See paper appendix Network Architecture)
-        self.blocks = 6#1  # Number of blocks in the ResNet
-        self.channels = 128#2  # Number of channels in the ResNet
+        self.blocks = 3#1  # Number of blocks in the ResNet
+        self.channels = 64#2  # Number of channels in the ResNet
         self.reduced_channels_reward = 2#2  # Number of channels in reward head
         self.reduced_channels_value = 2#2  # Number of channels in value head
         self.reduced_channels_policy = 4#2  # Number of channels in policy head
@@ -90,9 +90,9 @@ class MuZeroConfig:
         self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 50000#30000  # Total number of training steps (ie weights update according to a batch)
-        self.batch_size =  40  # Number of parts of games to train on at each training step
-        self.checkpoint_interval = 50#10  # Number of training steps before using the model for self-playing
-        self.value_loss_weight = 1#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
+        self.batch_size =  20  # Number of parts of games to train on at each training step
+        self.checkpoint_interval = 10#10  # Number of training steps before using the model for self-playing
+        self.value_loss_weight = 0.25#0.25  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
         self.optimizer = "Adam"  # "Adam" or "SGD". Paper uses SGD
@@ -108,8 +108,8 @@ class MuZeroConfig:
 
         ### Replay Buffer
         self.replay_buffer_size = 10000  # Number of self-play games to keep in the replay buffer
-        self.num_unroll_steps = 100#5  # Number of game moves to keep for every batch element
-        self.td_steps = 100#5  # Number of steps in the future to take into account for calculating the target value
+        self.num_unroll_steps = 40#5  # Number of game moves to keep for every batch element
+        self.td_steps = 40#5  # Number of steps in the future to take into account for calculating the target value
         self.PER = True  # Prioritized Replay (See paper appendix Training), select in priority the elements in the replay buffer which are unexpected for the network
         self.PER_alpha = 0.5  # How much prioritization is used, 0 corresponding to the uniform case, paper suggests 1
 
@@ -250,11 +250,11 @@ class GridEnv:
         # marked_position rest
         self.mark = numpy.zeros([grid_size,grid_size])
         self.pos_history = numpy.zeros([grid_size,grid_size])
-        self.pos_now = numpy.zeros([grid_size,grid_size])
-        self.invalid_1 = numpy.zeros([grid_size,grid_size])
-        self.invalid_2 = numpy.zeros([grid_size,grid_size])
-        self.invalid_3 = numpy.zeros([grid_size,grid_size])
-        self.invalid_4 = numpy.zeros([grid_size,grid_size])
+        #self.pos_now = numpy.zeros([grid_size,grid_size])
+        #self.invalid_1 = numpy.zeros([grid_size,grid_size])
+        #self.invalid_2 = numpy.zeros([grid_size,grid_size])
+        #self.invalid_3 = numpy.zeros([grid_size,grid_size])
+        #self.invalid_4 = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
         print(f'h_score={self.h_score}')
@@ -348,16 +348,16 @@ class GridEnv:
         # pos  history
         self.pos_history[self.position[0],self.position[1]] = 1        
         
-        self.pos_now = numpy.zeros([grid_size,grid_size])
-        self.pos_now[self.position[0],self.position[1]] = 1
-        self.invalid_1 = numpy.zeros([grid_size,grid_size])
-        self.invalid_1[self.position[0], :]=1
-        self.invalid_2 = numpy.zeros([grid_size,grid_size])
-        self.invalid_2[self.position[1], :]=1
-        self.invalid_3 = numpy.zeros([grid_size,grid_size])
-        self.invalid_3[:, self.position[0]]=1
-        self.invalid_4 = numpy.zeros([grid_size,grid_size])
-        self.invalid_4[:, self.position[1]]=1
+        #self.pos_now = numpy.zeros([grid_size,grid_size])
+        #self.pos_now[self.position[0],self.position[1]] = 1
+        #self.invalid_1 = numpy.zeros([grid_size,grid_size])
+        #self.invalid_1[self.position[0], :]=1
+        #self.invalid_2 = numpy.zeros([grid_size,grid_size])
+        #self.invalid_2[self.position[1], :]=1
+        #self.invalid_3 = numpy.zeros([grid_size,grid_size])
+        #self.invalid_3[:, self.position[0]]=1
+        #self.invalid_4 = numpy.zeros([grid_size,grid_size])
+        #self.invalid_4[:, self.position[1]]=1
         
         
         
@@ -391,11 +391,11 @@ class GridEnv:
         # marked_position rest
         self.mark = numpy.zeros([grid_size,grid_size])
         self.pos_history = numpy.zeros([grid_size,grid_size])
-        self.pos_now = numpy.zeros([grid_size,grid_size])
-        self.invalid_1 = numpy.zeros([grid_size,grid_size])
-        self.invalid_2 = numpy.zeros([grid_size,grid_size])
-        self.invalid_3 = numpy.zeros([grid_size,grid_size])
-        self.invalid_4 = numpy.zeros([grid_size,grid_size])
+        #self.pos_now = numpy.zeros([grid_size,grid_size])
+        #self.invalid_1 = numpy.zeros([grid_size,grid_size])
+        #self.invalid_2 = numpy.zeros([grid_size,grid_size])
+        #self.invalid_3 = numpy.zeros([grid_size,grid_size])
+        #self.invalid_4 = numpy.zeros([grid_size,grid_size])
         # h score reset 
         self.h_score = self.heuristic_score()
         self.agent_get_reward =0
@@ -418,9 +418,9 @@ class GridEnv:
     def get_observation(self):
         #observation = numpy.zeros((self.size, self.size))
         #observation[self.position[0]][self.position[1]] = 1
-        #observation = [self.grid ,self.mark]
+        observation = [self.grid ,self.pos_history,self.mark]
         #observation = [self.grid]
-        observation = [self.grid ,self.pos_history,self.mark,self.pos_now,self.invalid_1,self.invalid_2,self.invalid_3,self.invalid_4]
+        #observation = [self.grid ,self.pos_history,self.mark,self.pos_now,self.invalid_1,self.invalid_2,self.invalid_3,self.invalid_4]
         #observation = self.grid.flatten()
         # flatten 把二维3x3 拉成 单独的1维为9的np array
         #return observation.flatten()
